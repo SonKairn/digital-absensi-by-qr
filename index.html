@@ -5,19 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Paskibra Digital - Absensi & Manajemen</title>
     
+    <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
     
+    <!-- QR Code Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
+    
+    <!-- Download Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Export Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
@@ -116,6 +124,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         db.enablePersistence().catch(() => {});
+        console.log('✅ Firebase Ready');
     </script>
 
     <!-- LOGIN MODAL -->
@@ -126,7 +135,6 @@
                 <h3 class="text-xl font-bold">Login Paskibra Digital</h3>
                 <p class="text-sm text-gray-500">Masuk sesuai role Anda</p>
             </div>
-            
             <div class="flex gap-2 mb-4">
                 <button onclick="setLoginRole('admin')" class="btn-secondary flex-1 justify-center py-2 text-sm active" id="btnRoleAdmin">
                     <i data-lucide="shield" class="w-4 h-4"></i> Admin/Pembina
@@ -135,7 +143,6 @@
                     <i data-lucide="user" class="w-4 h-4"></i> Anggota
                 </button>
             </div>
-            
             <form id="loginForm" class="space-y-4">
                 <div>
                     <label id="loginLabel">Username</label>
@@ -149,7 +156,6 @@
                     <i data-lucide="log-in" class="w-5 h-5"></i> Masuk
                 </button>
             </form>
-            
             <div id="loginError" class="hidden mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm"></div>
             <p class="text-xs text-center text-gray-400 mt-4">Admin: Dewan / 2026/2027 • Anggota: A-001 / 123456</p>
         </div>
@@ -169,55 +175,29 @@
                     </div>
                 </div>
             </div>
-            
             <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto" id="sidebarNav">
                 <button onclick="navigateTo('dashboard')" class="sidebar-link active" data-page="dashboard">
                     <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
                 </button>
-                
+                <!-- Admin Menu -->
                 <div id="menuAdmin" class="hidden space-y-1">
-                    <button onclick="navigateTo('akts')" class="sidebar-link" data-page="akts">
-                        <i data-lucide="folder-tree" class="w-5 h-5"></i> Akt
-                    </button>
-                    <button onclick="navigateTo('members')" class="sidebar-link" data-page="members">
-                        <i data-lucide="users" class="w-5 h-5"></i> Anggota
-                    </button>
-                    <button onclick="navigateTo('qr-generator')" class="sidebar-link" data-page="qr-generator">
-                        <i data-lucide="qr-code" class="w-5 h-5"></i> Generate QR
-                    </button>
-                    <button onclick="navigateTo('scan')" class="sidebar-link" data-page="scan">
-                        <i data-lucide="scan" class="w-5 h-5"></i> Scan Absensi
-                    </button>
-                    <button onclick="navigateTo('manual-absent')" class="sidebar-link" data-page="manual-absent">
-                        <i data-lucide="clipboard-edit" class="w-5 h-5"></i> Absensi Manual
-                    </button>
-                    <button onclick="navigateTo('attendance')" class="sidebar-link" data-page="attendance">
-                        <i data-lucide="history" class="w-5 h-5"></i> Riwayat
-                    </button>
-                    <button onclick="navigateTo('rekap')" class="sidebar-link" data-page="rekap">
-                        <i data-lucide="bar-chart-3" class="w-5 h-5"></i> Rekap
-                    </button>
-                    <button onclick="navigateTo('pengajuan')" class="sidebar-link" data-page="pengajuan">
-                        <i data-lucide="inbox" class="w-5 h-5"></i> Pengajuan Izin
-                    </button>
-                    <button onclick="navigateTo('export')" class="sidebar-link" data-page="export">
-                        <i data-lucide="download" class="w-5 h-5"></i> Export Rekap
-                    </button>
+                    <button onclick="navigateTo('akts')" class="sidebar-link" data-page="akts"><i data-lucide="folder-tree" class="w-5 h-5"></i> Akt</button>
+                    <button onclick="navigateTo('members')" class="sidebar-link" data-page="members"><i data-lucide="users" class="w-5 h-5"></i> Anggota</button>
+                    <button onclick="navigateTo('qr-generator')" class="sidebar-link" data-page="qr-generator"><i data-lucide="qr-code" class="w-5 h-5"></i> Generate QR</button>
+                    <button onclick="navigateTo('scan')" class="sidebar-link" data-page="scan"><i data-lucide="scan" class="w-5 h-5"></i> Scan Absensi</button>
+                    <button onclick="navigateTo('manual-absent')" class="sidebar-link" data-page="manual-absent"><i data-lucide="clipboard-edit" class="w-5 h-5"></i> Absensi Manual</button>
+                    <button onclick="navigateTo('attendance')" class="sidebar-link" data-page="attendance"><i data-lucide="history" class="w-5 h-5"></i> Riwayat</button>
+                    <button onclick="navigateTo('rekap')" class="sidebar-link" data-page="rekap"><i data-lucide="bar-chart-3" class="w-5 h-5"></i> Rekap</button>
+                    <button onclick="navigateTo('pengajuan')" class="sidebar-link" data-page="pengajuan"><i data-lucide="inbox" class="w-5 h-5"></i> Pengajuan Izin</button>
+                    <button onclick="navigateTo('export')" class="sidebar-link" data-page="export"><i data-lucide="download" class="w-5 h-5"></i> Export Rekap</button>
                 </div>
-                
+                <!-- Anggota Menu -->
                 <div id="menuAnggota" class="hidden space-y-1">
-                    <button onclick="navigateTo('profil-anggota')" class="sidebar-link" data-page="profil-anggota">
-                        <i data-lucide="user-circle" class="w-5 h-5"></i> Profil Saya
-                    </button>
-                    <button onclick="navigateTo('riwayat-anggota')" class="sidebar-link" data-page="riwayat-anggota">
-                        <i data-lucide="history" class="w-5 h-5"></i> Riwayat Saya
-                    </button>
-                    <button onclick="navigateTo('izin-anggota')" class="sidebar-link" data-page="izin-anggota">
-                        <i data-lucide="file-text" class="w-5 h-5"></i> Ajukan Izin
-                    </button>
+                    <button onclick="navigateTo('profil-anggota')" class="sidebar-link" data-page="profil-anggota"><i data-lucide="user-circle" class="w-5 h-5"></i> Profil Saya</button>
+                    <button onclick="navigateTo('riwayat-anggota')" class="sidebar-link" data-page="riwayat-anggota"><i data-lucide="history" class="w-5 h-5"></i> Riwayat Saya</button>
+                    <button onclick="navigateTo('izin-anggota')" class="sidebar-link" data-page="izin-anggota"><i data-lucide="file-text" class="w-5 h-5"></i> Ajukan Izin</button>
                 </div>
             </nav>
-            
             <div class="p-4 border-t border-gray-100 dark:border-gray-800 space-y-2">
                 <div id="sidebarGuest" class="space-y-2">
                     <button onclick="showLoginModal()" class="btn-primary w-full justify-center text-sm py-2">Login</button>
@@ -226,18 +206,13 @@
                     <p class="text-sm font-medium" id="sidebarUsername">-</p>
                     <button onclick="logout()" class="btn-secondary w-full text-red-500 text-sm py-2">Logout</button>
                 </div>
-                <button onclick="toggleDarkMode()" class="btn-secondary w-full text-sm py-2">
-                    <i data-lucide="moon" class="w-4 h-4" id="darkIcon"></i> Dark
-                </button>
+                <button onclick="toggleDarkMode()" class="btn-secondary w-full text-sm py-2"><i data-lucide="moon" class="w-4 h-4" id="darkIcon"></i> Dark</button>
             </div>
         </aside>
 
         <!-- Mobile Header -->
         <header class="lg:hidden glass-effect sticky top-0 z-30 border-b px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">P</div>
-                <span class="font-semibold">Paskibra Digital</span>
-            </div>
+            <div class="flex items-center gap-2"><div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">P</div><span class="font-semibold">Paskibra Digital</span></div>
             <div class="flex gap-2">
                 <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100"><i data-lucide="moon" class="w-5 h-5"></i></button>
                 <button onclick="toggleMobileMenu()" class="p-2 rounded-lg hover:bg-gray-100"><i data-lucide="menu" class="w-5 h-5"></i></button>
@@ -248,10 +223,7 @@
         <div id="mobileMenu" class="lg:hidden fixed inset-0 z-40 hidden">
             <div class="absolute inset-0 bg-black/40" onclick="toggleMobileMenu()"></div>
             <div class="absolute left-0 top-0 bottom-0 w-72 bg-white dark:bg-gray-900 p-6 overflow-y-auto">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="font-semibold">Menu</h3>
-                    <button onclick="toggleMobileMenu()"><i data-lucide="x" class="w-6 h-6"></i></button>
-                </div>
+                <div class="flex justify-between items-center mb-6"><h3 class="font-semibold">Menu</h3><button onclick="toggleMobileMenu()"><i data-lucide="x" class="w-6 h-6"></i></button></div>
                 <nav class="space-y-1" id="mobileNav"></nav>
             </div>
         </div>
@@ -262,7 +234,7 @@
                 
                 <!-- DASHBOARD -->
                 <div id="page-dashboard" class="page active">
-                    <h1 class="text-2xl font-bold mb-6" id="dashboardTitle">Dashboard</h1>
+                    <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
                     <div id="dashboardContent"></div>
                 </div>
 
@@ -328,60 +300,25 @@
                     <div id="pengajuanList" class="space-y-3"></div>
                 </div>
 
-                <!-- EXPORT REKAP -->
+                <!-- EXPORT -->
                 <div id="page-export" class="page">
                     <h2 class="text-2xl font-bold mb-6">Export Rekap Absensi</h2>
-                    
                     <div class="card max-w-xl space-y-4 mb-6">
-                        <div>
-                            <label>Periode</label>
-                            <select id="exportPeriode" onchange="updateExportRange()">
-                                <option value="mingguan">Mingguan</option>
-                                <option value="bulanan">Bulanan</option>
-                                <option value="custom">Custom Date</option>
-                            </select>
-                        </div>
-                        
+                        <div><label>Periode</label><select id="exportPeriode" onchange="updateExportRange()"><option value="mingguan">Mingguan</option><option value="bulanan">Bulanan</option><option value="custom">Custom Date</option></select></div>
                         <div id="exportCustomRange" class="hidden grid grid-cols-2 gap-3">
-                            <div><label>Dari Tanggal</label><input type="date" id="exportStartDate"></div>
-                            <div><label>Sampai Tanggal</label><input type="date" id="exportEndDate"></div>
+                            <div><label>Dari</label><input type="date" id="exportStartDate"></div>
+                            <div><label>Sampai</label><input type="date" id="exportEndDate"></div>
                         </div>
-                        
-                        <div>
-                            <label>Filter Status</label>
-                            <select id="exportStatus">
-                                <option value="semua">Semua Status</option>
-                                <option value="hadir">Hadir</option>
-                                <option value="izin">Izin</option>
-                                <option value="sakit">Sakit</option>
-                                <option value="alpha">Alpha</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label>Pilih Akt (opsional)</label>
-                            <select id="exportAkt">
-                                <option value="">Semua Akt</option>
-                            </select>
-                        </div>
+                        <div><label>Filter Status</label><select id="exportStatus"><option value="semua">Semua</option><option value="hadir">Hadir</option><option value="izin">Izin</option><option value="sakit">Sakit</option><option value="alpha">Alpha</option></select></div>
+                        <div><label>Pilih Akt (opsional)</label><select id="exportAkt"><option value="">Semua Akt</option></select></div>
+                        <button onclick="updateExportPreview()" class="btn-secondary w-full">Lihat Preview</button>
                     </div>
-                    
                     <div class="flex gap-2 flex-wrap mb-6">
-                        <button onclick="exportToPDF()" class="btn-primary">
-                            <i data-lucide="file-text" class="w-5 h-5"></i> Export PDF
-                        </button>
-                        <button onclick="exportToExcel()" class="btn-primary" style="background:#059669;">
-                            <i data-lucide="file-spreadsheet" class="w-5 h-5"></i> Export Excel
-                        </button>
-                        <button onclick="exportToCSV()" class="btn-primary" style="background:#6B7280;">
-                            <i data-lucide="download" class="w-5 h-5"></i> Export CSV
-                        </button>
+                        <button onclick="exportToPDF()" class="btn-primary"><i data-lucide="file-text" class="w-5 h-5"></i> PDF</button>
+                        <button onclick="exportToExcel()" class="btn-primary" style="background:#059669;"><i data-lucide="file-spreadsheet" class="w-5 h-5"></i> Excel</button>
+                        <button onclick="exportToCSV()" class="btn-primary" style="background:#6B7280;"><i data-lucide="download" class="w-5 h-5"></i> CSV</button>
                     </div>
-                    
-                    <div class="card">
-                        <h3 class="font-semibold mb-4">Preview Data</h3>
-                        <div id="exportPreview" class="table-container"></div>
-                    </div>
+                    <div class="card"><h3 class="font-semibold mb-4">Preview Data</h3><div id="exportPreview" class="table-container"></div></div>
                 </div>
 
                 <!-- PROFIL ANGGOTA -->
@@ -461,19 +398,16 @@
         function updateUI() {
             const isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.role === 'superadmin');
             const isAnggota = currentUser && currentUser.role === 'anggota';
-            
             document.getElementById('menuAdmin').classList.toggle('hidden', !isAdmin);
             document.getElementById('menuAnggota').classList.toggle('hidden', !isAnggota);
             document.getElementById('sidebarGuest').classList.toggle('hidden', !!currentUser);
             document.getElementById('sidebarUser').classList.toggle('hidden', !currentUser);
-            
             if (currentUser) {
                 document.getElementById('sidebarUsername').textContent = currentUser.nama || currentUser.username;
                 document.getElementById('sidebarRole').textContent = currentUser.role === 'superadmin' ? 'Pembina' : currentUser.role === 'admin' ? 'Admin' : 'Anggota';
             } else {
                 document.getElementById('sidebarRole').textContent = 'Guest';
             }
-            
             buildMobileMenu();
             lucide.createIcons();
         }
@@ -481,7 +415,6 @@
         function buildMobileMenu() {
             const nav = document.getElementById('mobileNav');
             let items = [{ id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' }];
-            
             if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'superadmin')) {
                 items.push(
                     { id: 'akts', label: 'Akt', icon: 'folder-tree' },
@@ -501,7 +434,6 @@
                     { id: 'izin-anggota', label: 'Ajukan Izin', icon: 'file-text' }
                 );
             }
-            
             nav.innerHTML = items.map(i => `<button onclick="navigateTo('${i.id}'); toggleMobileMenu();" class="sidebar-link w-full" data-page="${i.id}"><i data-lucide="${i.icon}" class="w-5 h-5"></i> ${i.label}</button>`).join('');
             lucide.createIcons();
         }
@@ -522,7 +454,6 @@
             const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
             const errorDiv = document.getElementById('loginError');
-            
             if (loginRole === 'admin') {
                 const found = ADMIN_ACCOUNTS.find(a => a.username === username && a.password === password);
                 if (found) {
@@ -538,22 +469,15 @@
                     setTimeout(() => errorDiv.classList.add('hidden'), 3000);
                 }
             } else {
-                // Login anggota
                 try {
                     const snap = await db.collection('members')
                         .where('nomorAnggota', '==', username)
                         .where('password', '==', password)
                         .get();
-                    
                     if (!snap.empty) {
                         const doc = snap.docs[0];
                         const member = doc.data();
-                        currentUser = { 
-                            username: member.nomorAnggota, 
-                            role: 'anggota', 
-                            nama: member.namaLengkap,
-                            memberId: doc.id 
-                        };
+                        currentUser = { username: member.nomorAnggota, role: 'anggota', nama: member.namaLengkap, memberId: doc.id };
                         localStorage.setItem('paskibra_user', JSON.stringify(currentUser));
                         updateUI();
                         closeModal('loginModal');
@@ -583,30 +507,22 @@
 
         // ==================== NAVIGATION ====================
         function navigateTo(page) {
-            const adminPages = ['akts', 'members', 'qr-generator', 'scan', 'manual-absent', 'attendance', 'rekap', 'pengajuan', 'export'];
-            const anggotaPages = ['profil-anggota', 'riwayat-anggota', 'izin-anggota'];
-            
+            const adminPages = ['akts','members','qr-generator','scan','manual-absent','attendance','rekap','pengajuan','export'];
+            const anggotaPages = ['profil-anggota','riwayat-anggota','izin-anggota'];
             if (adminPages.includes(page) && (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'superadmin'))) {
                 showToast('🔒 Login sebagai admin diperlukan', 'error');
                 showLoginModal();
                 return;
             }
-            
             if (anggotaPages.includes(page) && (!currentUser || currentUser.role !== 'anggota')) {
                 showToast('🔒 Login sebagai anggota diperlukan', 'error');
                 showLoginModal();
                 return;
             }
-            
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const target = document.getElementById(`page-${page}`);
             if (target) target.classList.add('active');
-            
-            document.querySelectorAll('#sidebarNav .sidebar-link').forEach(l => {
-                l.classList.remove('active');
-                if (l.getAttribute('data-page') === page) l.classList.add('active');
-            });
-            
+            document.querySelectorAll('#sidebarNav .sidebar-link').forEach(l => { l.classList.remove('active'); if (l.getAttribute('data-page') === page) l.classList.add('active'); });
             const loaders = {
                 'dashboard': loadDashboard,
                 'akts': loadAkts,
@@ -622,7 +538,6 @@
                 'riwayat-anggota': loadRiwayatAnggota,
                 'izin-anggota': () => {}
             };
-            
             if (loaders[page]) loaders[page]();
             if (page !== 'scan' && html5QrScanner) stopScanner();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -631,27 +546,16 @@
 
         // ==================== DASHBOARD ====================
         async function loadDashboard() {
-            try {
-                const container = document.getElementById('dashboardContent');
-                
-                if (currentUser && currentUser.role === 'anggota') {
-                    // Dashboard khusus anggota
+            const container = document.getElementById('dashboardContent');
+            if (currentUser && currentUser.role === 'anggota') {
+                try {
                     const memberDoc = await db.collection('members').doc(currentUser.memberId).get();
                     const member = memberDoc.data();
                     const attSnap = await db.collection('attendances').where('memberId', '==', currentUser.memberId).get();
-                    
-                    let hadir = 0, izin = 0, sakit = 0, alpha = 0;
-                    attSnap.forEach(doc => {
-                        const d = doc.data();
-                        if (d.status === 'hadir') hadir++;
-                        else if (d.status === 'izin') izin++;
-                        else if (d.status === 'sakit') sakit++;
-                        else if (d.status === 'alpha') alpha++;
-                    });
-                    
-                    const total = hadir + izin + sakit + alpha;
-                    const persentase = total > 0 ? ((hadir / total) * 100).toFixed(1) : 0;
-                    
+                    let hadir=0, izin=0, sakit=0, alpha=0;
+                    attSnap.forEach(doc => { const d=doc.data(); if(d.status==='hadir') hadir++; else if(d.status==='izin') izin++; else if(d.status==='sakit') sakit++; else if(d.status==='alpha') alpha++; });
+                    const total=hadir+izin+sakit+alpha;
+                    const persentase=total>0?((hadir/total)*100).toFixed(1):0;
                     container.innerHTML = `
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                             <div class="card text-center"><p class="text-sm text-gray-500">Hadir</p><p class="text-2xl font-bold text-green-600">${hadir}</p></div>
@@ -662,576 +566,429 @@
                         <div class="card">
                             <h3 class="font-semibold mb-2">Persentase Kehadiran</h3>
                             <div class="flex items-center gap-4"><span class="text-3xl font-bold text-blue-600">${persentase}%</span><div class="flex-1 h-4 bg-gray-200 rounded-full"><div class="h-full bg-blue-600 rounded-full" style="width:${persentase}%"></div></div></div>
-                        </div>
-                    `;
-                } else {
-                    // Dashboard admin/guest
-                    const today = new Date().toISOString().split('T')[0];
+                        </div>`;
+                } catch(e){ console.error(e); }
+            } else {
+                const today = new Date().toISOString().split('T')[0];
+                try {
                     const membersSnap = await db.collection('members').get();
-                    const attSnap = await db.collection('attendances').where('tanggal', '==', today).get();
-                    
-                    let hadir = 0, izin = 0, sakit = 0, alpha = 0;
-                    attSnap.forEach(doc => {
-                        const d = doc.data();
-                        if (d.status === 'hadir') hadir++;
-                        else if (d.status === 'izin') izin++;
-                        else if (d.status === 'sakit') sakit++;
-                        else if (d.status === 'alpha') alpha++;
-                    });
-                    
+                    const attSnap = await db.collection('attendances').where('tanggal','==',today).get();
+                    let hadir=0, izin=0, sakit=0, alpha=0;
+                    attSnap.forEach(doc => { const d=doc.data(); if(d.status==='hadir') hadir++; else if(d.status==='izin') izin++; else if(d.status==='sakit') sakit++; else if(d.status==='alpha') alpha++; });
                     container.innerHTML = `
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                             <div class="card"><p class="text-sm text-gray-500">Total Anggota</p><p class="text-2xl font-bold">${membersSnap.size}</p></div>
                             <div class="card"><p class="text-sm text-gray-500">Hadir Hari Ini</p><p class="text-2xl font-bold text-green-600">${hadir}</p></div>
-                            <div class="card"><p class="text-sm text-gray-500">Izin/Sakit</p><p class="text-2xl font-bold text-yellow-600">${izin + sakit}</p></div>
+                            <div class="card"><p class="text-sm text-gray-500">Izin/Sakit</p><p class="text-2xl font-bold text-yellow-600">${izin+sakit}</p></div>
                             <div class="card"><p class="text-sm text-gray-500">Alpha</p><p class="text-2xl font-bold text-red-600">${alpha}</p></div>
                         </div>
-                        <div class="card"><h3 class="font-semibold mb-4">Aktivitas Hari Ini</h3><div id="recentActivities"></div></div>
-                    `;
-                    
-                    const acts = [];
-                    attSnap.forEach(doc => acts.push(doc.data()));
-                    const html = acts.slice(0, 10).map(a => `<div class="flex justify-between py-2"><span>${a.namaAnggota}</span><span class="badge ${a.status === 'hadir' ? 'badge-success' : 'badge-warning'}">${a.status.toUpperCase()}</span><span class="text-gray-400">${a.jam || ''}</span></div>`).join('') || '<p class="text-gray-400 text-center py-4">Belum ada aktivitas</p>';
+                        <div class="card"><h3 class="font-semibold mb-4">Aktivitas Hari Ini</h3><div id="recentActivities"></div></div>`;
+                    const acts=[]; attSnap.forEach(doc=>acts.push(doc.data()));
+                    const html=acts.slice(0,10).map(a=>`<div class="flex justify-between py-2"><span>${a.namaAnggota}</span><span class="badge ${a.status==='hadir'?'badge-success':'badge-warning'}">${a.status.toUpperCase()}</span><span class="text-gray-400">${a.jam||''}</span></div>`).join('')||'<p class="text-gray-400 text-center py-4">Belum ada aktivitas</p>';
                     document.getElementById('recentActivities').innerHTML = html;
-                }
-                lucide.createIcons();
-            } catch (error) { console.error('Dashboard error:', error); }
+                } catch(e){ console.error(e); }
+            }
+            lucide.createIcons();
         }
 
         // ==================== AKT CRUD ====================
         async function loadAkts() {
             try {
-                const snapshot = await db.collection('akts').orderBy('createdAt', 'desc').get();
+                const snapshot = await db.collection('akts').orderBy('createdAt','desc').get();
                 const container = document.getElementById('aktList');
-                if (snapshot.empty) {
-                    container.innerHTML = '<div class="col-span-full text-center py-12"><p class="text-gray-500">Belum ada data Akt</p></div>';
-                } else {
-                    container.innerHTML = '';
-                    snapshot.forEach(doc => {
-                        const akt = doc.data();
-                        container.innerHTML += `<div class="card"><h3 class="font-semibold">${akt.nama}</h3><p class="text-sm text-gray-500">Tahun ${akt.tahun}</p><p class="text-sm text-gray-500">${akt.keterangan || ''}</p><div class="flex gap-2 mt-3"><button onclick="editAkt('${doc.id}')" class="btn-secondary text-sm flex-1">Edit</button><button onclick="deleteAkt('${doc.id}')" class="btn-danger text-sm">Hapus</button></div></div>`;
-                    });
-                }
+                if (snapshot.empty) { container.innerHTML = '<div class="col-span-full text-center py-12"><p class="text-gray-500">Belum ada data Akt</p></div>'; return; }
+                container.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const akt = doc.data();
+                    container.innerHTML += `<div class="card"><h3 class="font-semibold">${akt.nama}</h3><p class="text-sm text-gray-500">Tahun ${akt.tahun}</p><p class="text-sm text-gray-500">${akt.keterangan||''}</p><div class="flex gap-2 mt-3"><button onclick="editAkt('${doc.id}')" class="btn-secondary text-sm flex-1">Edit</button><button onclick="deleteAkt('${doc.id}')" class="btn-danger text-sm">Hapus</button></div></div>`;
+                });
                 lucide.createIcons();
-            } catch (error) { console.error('Load akts error:', error); }
+            } catch(e){ console.error(e); }
         }
 
-        function showAddAktModal() { document.getElementById('aktModalTitle').textContent = 'Tambah Akt'; document.getElementById('aktId').value = ''; document.getElementById('aktName').value = ''; document.getElementById('aktYear').value = ''; document.getElementById('aktDescription').value = ''; document.getElementById('aktModal').classList.add('active'); }
-        
-        async function editAkt(id) { try { const doc = await db.collection('akts').doc(id).get(); const akt = doc.data(); document.getElementById('aktModalTitle').textContent = 'Edit Akt'; document.getElementById('aktId').value = id; document.getElementById('aktName').value = akt.nama; document.getElementById('aktYear').value = akt.tahun; document.getElementById('aktDescription').value = akt.keterangan || ''; document.getElementById('aktModal').classList.add('active'); } catch (error) { showToast('❌ Gagal memuat data', 'error'); } }
-        
-        async function saveAkt() { const id = document.getElementById('aktId').value; const nama = document.getElementById('aktName').value.trim(); const tahun = document.getElementById('aktYear').value; const keterangan = document.getElementById('aktDescription').value.trim(); if (!nama || !tahun) { showToast('❌ Nama dan tahun wajib diisi!', 'error'); return; } try { const data = { nama, tahun, keterangan, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }; if (id) { await db.collection('akts').doc(id).update(data); showToast('✅ Akt diperbarui!', 'success'); } else { data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); await db.collection('akts').add(data); showToast('✅ Akt ditambahkan!', 'success'); } closeModal('aktModal'); loadAkts(); loadAktOptions(); } catch (error) { showToast('❌ Gagal menyimpan', 'error'); } }
-        
-        async function deleteAkt(id) { if (!confirm('Hapus Akt ini?')) return; try { await db.collection('akts').doc(id).delete(); showToast('✅ Akt dihapus', 'success'); loadAkts(); loadAktOptions(); } catch (error) { showToast('❌ Gagal menghapus', 'error'); } }
+        function showAddAktModal() { document.getElementById('aktModalTitle').textContent='Tambah Akt'; document.getElementById('aktId').value=''; document.getElementById('aktName').value=''; document.getElementById('aktYear').value=''; document.getElementById('aktDescription').value=''; document.getElementById('aktModal').classList.add('active'); }
+        async function editAkt(id) { try { const doc=await db.collection('akts').doc(id).get(); const akt=doc.data(); document.getElementById('aktModalTitle').textContent='Edit Akt'; document.getElementById('aktId').value=id; document.getElementById('aktName').value=akt.nama; document.getElementById('aktYear').value=akt.tahun; document.getElementById('aktDescription').value=akt.keterangan||''; document.getElementById('aktModal').classList.add('active'); } catch(e){ showToast('❌ Gagal memuat data','error'); } }
+        async function saveAkt() { const id=document.getElementById('aktId').value; const nama=document.getElementById('aktName').value.trim(); const tahun=document.getElementById('aktYear').value; const keterangan=document.getElementById('aktDescription').value.trim(); if(!nama||!tahun){ showToast('❌ Nama dan tahun wajib diisi!','error'); return; } try { const data={nama,tahun,keterangan,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}; if(id){ await db.collection('akts').doc(id).update(data); showToast('✅ Akt diperbarui!','success'); } else { data.createdAt=firebase.firestore.FieldValue.serverTimestamp(); await db.collection('akts').add(data); showToast('✅ Akt ditambahkan!','success'); } closeModal('aktModal'); loadAkts(); loadAktOptions(); } catch(e){ showToast('❌ Gagal menyimpan','error'); } }
+        async function deleteAkt(id) { if(!confirm('Hapus Akt ini?')) return; try { await db.collection('akts').doc(id).delete(); showToast('✅ Akt dihapus','success'); loadAkts(); loadAktOptions(); } catch(e){ showToast('❌ Gagal menghapus','error'); } }
 
         // ==================== MEMBER CRUD ====================
         async function loadMembers() {
             try {
-                const snapshot = await db.collection('members').orderBy('createdAt', 'desc').get();
+                const snapshot = await db.collection('members').orderBy('createdAt','desc').get();
                 const tbody = document.getElementById('membersTableBody');
-                if (snapshot.empty) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-12 text-gray-500">Belum ada anggota</td></tr>';
-                } else {
-                    tbody.innerHTML = '';
-                    snapshot.forEach(doc => {
-                        const m = doc.data();
-                        tbody.innerHTML += `<tr><td>${m.nomorAnggota || '-'}</td><td>${m.namaLengkap}</td><td>${m.aktNama || '-'}</td><td>${m.nomorAnggota || '-'}</td><td><span class="badge badge-success">Aktif</span></td><td><div class="flex gap-1"><button onclick="editMember('${doc.id}')" class="text-blue-600"><i data-lucide="edit" class="w-4 h-4"></i></button><button onclick="deleteMember('${doc.id}')" class="text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td></tr>`;
-                    });
-                }
+                if (snapshot.empty) { tbody.innerHTML='<tr><td colspan="6" class="text-center py-12 text-gray-500">Belum ada anggota</td></tr>'; return; }
+                tbody.innerHTML='';
+                snapshot.forEach(doc => {
+                    const m=doc.data();
+                    tbody.innerHTML += `<tr><td>${m.nomorAnggota||'-'}</td><td>${m.namaLengkap}</td><td>${m.aktNama||'-'}</td><td>${m.nomorAnggota||'-'}</td><td><span class="badge badge-success">Aktif</span></td><td><div class="flex gap-1"><button onclick="editMember('${doc.id}')" class="text-blue-600"><i data-lucide="edit" class="w-4 h-4"></i></button><button onclick="deleteMember('${doc.id}')" class="text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td></tr>`;
+                });
                 lucide.createIcons();
-            } catch (error) { console.error('Load members error:', error); }
+            } catch(e){ console.error(e); }
         }
 
-        function showAddMemberModal() { document.getElementById('memberModalTitle').textContent = 'Tambah Anggota'; document.getElementById('memberId').value = ''; document.getElementById('memberName').value = ''; document.getElementById('memberPhone').value = ''; document.getElementById('memberJabatan').value = ''; loadAktOptions('memberAkt'); document.getElementById('memberModal').classList.add('active'); }
-        
-        async function editMember(id) { try { const doc = await db.collection('members').doc(id).get(); const m = doc.data(); document.getElementById('memberModalTitle').textContent = 'Edit Anggota'; document.getElementById('memberId').value = id; document.getElementById('memberName').value = m.namaLengkap; document.getElementById('memberPhone').value = m.noHP || ''; document.getElementById('memberJabatan').value = m.jabatan || ''; await loadAktOptions('memberAkt'); document.getElementById('memberAkt').value = m.aktId || ''; document.getElementById('memberGender').value = m.jenisKelamin || 'L'; document.getElementById('memberModal').classList.add('active'); } catch (error) { showToast('❌ Gagal memuat data', 'error'); } }
-        
-        async function saveMember() { const id = document.getElementById('memberId').value; const nama = document.getElementById('memberName').value.trim(); const aktId = document.getElementById('memberAkt').value; const gender = document.getElementById('memberGender').value; const phone = document.getElementById('memberPhone').value.trim(); const jabatan = document.getElementById('memberJabatan').value.trim(); if (!nama || !aktId) { showToast('❌ Nama dan Akt wajib diisi!', 'error'); return; } try { const aktDoc = await db.collection('akts').doc(aktId).get(); const aktNama = aktDoc.exists ? aktDoc.data().nama : 'Unknown'; const data = { namaLengkap: nama, aktId, aktNama, jenisKelamin: gender, noHP: phone, jabatan, statusAktif: true, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }; if (id) { await db.collection('members').doc(id).update(data); showToast('✅ Anggota diperbarui!', 'success'); } else { const count = (await db.collection('members').get()).size + 1; data.nomorAnggota = `A-${String(count).padStart(3, '0')}`; data.password = '123456'; data.qrCodeId = crypto.randomUUID(); data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); await db.collection('members').add(data); showToast('✅ Anggota ditambahkan!', 'success'); } closeModal('memberModal'); loadMembers(); loadDashboard(); } catch (error) { showToast('❌ Gagal menyimpan', 'error'); } }
-        
-        async function deleteMember(id) { if (!confirm('Hapus anggota ini?')) return; try { await db.collection('members').doc(id).delete(); showToast('✅ Anggota dihapus', 'success'); loadMembers(); } catch (error) { showToast('❌ Gagal menghapus', 'error'); } }
+        function showAddMemberModal() { document.getElementById('memberModalTitle').textContent='Tambah Anggota'; document.getElementById('memberId').value=''; document.getElementById('memberName').value=''; document.getElementById('memberPhone').value=''; document.getElementById('memberJabatan').value=''; loadAktOptions('memberAkt'); document.getElementById('memberModal').classList.add('active'); }
+        async function editMember(id) { try { const doc=await db.collection('members').doc(id).get(); const m=doc.data(); document.getElementById('memberModalTitle').textContent='Edit Anggota'; document.getElementById('memberId').value=id; document.getElementById('memberName').value=m.namaLengkap; document.getElementById('memberPhone').value=m.noHP||''; document.getElementById('memberJabatan').value=m.jabatan||''; await loadAktOptions('memberAkt'); document.getElementById('memberAkt').value=m.aktId||''; document.getElementById('memberGender').value=m.jenisKelamin||'L'; document.getElementById('memberModal').classList.add('active'); } catch(e){ showToast('❌ Gagal memuat data','error'); } }
+        async function saveMember() { const id=document.getElementById('memberId').value; const nama=document.getElementById('memberName').value.trim(); const aktId=document.getElementById('memberAkt').value; const gender=document.getElementById('memberGender').value; const phone=document.getElementById('memberPhone').value.trim(); const jabatan=document.getElementById('memberJabatan').value.trim(); if(!nama||!aktId){ showToast('❌ Nama dan Akt wajib diisi!','error'); return; } try { const aktDoc=await db.collection('akts').doc(aktId).get(); const aktNama=aktDoc.exists?aktDoc.data().nama:'Unknown'; const data={namaLengkap:nama,aktId,aktNama,jenisKelamin:gender,noHP:phone,jabatan,statusAktif:true,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}; if(id){ await db.collection('members').doc(id).update(data); showToast('✅ Anggota diperbarui!','success'); } else { const count=(await db.collection('members').get()).size+1; data.nomorAnggota=`A-${String(count).padStart(3,'0')}`; data.password='123456'; data.qrCodeId=crypto.randomUUID(); data.createdAt=firebase.firestore.FieldValue.serverTimestamp(); await db.collection('members').add(data); showToast('✅ Anggota ditambahkan!','success'); } closeModal('memberModal'); loadMembers(); loadDashboard(); } catch(e){ showToast('❌ Gagal menyimpan','error'); } }
+        async function deleteMember(id) { if(!confirm('Hapus anggota ini?')) return; try { await db.collection('members').doc(id).delete(); showToast('✅ Anggota dihapus','success'); loadMembers(); } catch(e){ showToast('❌ Gagal menghapus','error'); } }
 
         // ==================== QR GENERATOR ====================
-        async function loadAktOptions(targetId = 'selectAktQR') {
+        async function loadAktOptions(targetId='selectAktQR') {
             try {
                 const snapshot = await db.collection('akts').get();
                 const targets = [targetId];
-                if (targetId === 'selectAktQR') targets.push('manualAkt', 'exportAkt');
-                if (targetId === 'memberAkt') targets.push('memberAkt');
-                targets.forEach(id => { const select = document.getElementById(id); if (!select) return; let options = '<option value="">-- Pilih Akt --</option>'; snapshot.forEach(doc => { const akt = doc.data(); options += `<option value="${doc.id}">${akt.nama} (${akt.tahun})</option>`; }); select.innerHTML = options; });
-            } catch (error) { console.error('Load akt options error:', error); }
+                if(targetId==='selectAktQR') targets.push('manualAkt','exportAkt');
+                if(targetId==='memberAkt') targets.push('memberAkt');
+                targets.forEach(id => { const select=document.getElementById(id); if(!select) return; let options='<option value="">-- Pilih Akt --</option>'; snapshot.forEach(doc=>{ const akt=doc.data(); options+=`<option value="${doc.id}">${akt.nama} (${akt.tahun})</option>`; }); select.innerHTML=options; });
+            } catch(e){ console.error(e); }
         }
 
         async function generateQRCodes() {
-            const aktId = document.getElementById('selectAktQR').value;
-            if (!aktId) { showToast('❌ Pilih Akt!', 'error'); return; }
-            currentAktId = aktId;
+            const aktId=document.getElementById('selectAktQR').value;
+            if(!aktId){ showToast('❌ Pilih Akt!','error'); return; }
+            currentAktId=aktId;
             try {
-                const membersSnap = await db.collection('members').where('aktId', '==', aktId).get();
-                const container = document.getElementById('qrResults');
-                container.innerHTML = '';
-                generatedQRData = [];
-                if (membersSnap.empty) { container.innerHTML = '<div class="col-span-full text-center py-12"><p class="text-gray-500">Tidak ada anggota</p></div>'; document.getElementById('btnDownloadAll').classList.add('hidden'); return; }
-                membersSnap.forEach(doc => {
-                    const m = doc.data();
-                    generatedQRData.push({ id: doc.id, nama: m.namaLengkap, nomor: m.nomorAnggota, akt: m.aktNama, qrCodeId: m.qrCodeId || doc.id });
-                    const card = document.createElement('div');
-                    card.className = 'card text-center';
-                    card.innerHTML = `<div id="qr-${doc.id}" class="qr-frame mx-auto mb-3 inline-block"></div><p class="font-semibold text-sm">${m.namaLengkap}</p><p class="text-xs text-gray-500">${m.nomorAnggota}</p><p class="text-xs text-gray-400 mb-3">${m.aktNama}</p><button onclick="downloadSingleQR('${doc.id}')" class="btn-primary text-xs py-2 px-3 w-full justify-center"><i data-lucide="download" class="w-3 h-3"></i> Download</button>`;
+                const membersSnap=await db.collection('members').where('aktId','==',aktId).get();
+                const container=document.getElementById('qrResults');
+                container.innerHTML=''; generatedQRData=[];
+                if(membersSnap.empty){ container.innerHTML='<div class="col-span-full text-center py-12"><p class="text-gray-500">Tidak ada anggota</p></div>'; document.getElementById('btnDownloadAll').classList.add('hidden'); return; }
+                membersSnap.forEach(doc=>{
+                    const m=doc.data();
+                    generatedQRData.push({id:doc.id,nama:m.namaLengkap,nomor:m.nomorAnggota,akt:m.aktNama,qrCodeId:m.qrCodeId||doc.id});
+                    const card=document.createElement('div'); card.className='card text-center';
+                    card.innerHTML=`<div id="qr-${doc.id}" class="qr-frame mx-auto mb-3 inline-block"></div><p class="font-semibold text-sm">${m.namaLengkap}</p><p class="text-xs text-gray-500">${m.nomorAnggota}</p><p class="text-xs text-gray-400 mb-3">${m.aktNama}</p><button onclick="downloadSingleQR('${doc.id}')" class="btn-primary text-xs py-2 px-3 w-full justify-center"><i data-lucide="download" class="w-3 h-3"></i> Download</button>`;
                     container.appendChild(card);
-                    setTimeout(() => {
-                        const qrDiv = document.getElementById(`qr-${doc.id}`);
-                        if (qrDiv && typeof QRCode !== 'undefined') {
-                            qrDiv.innerHTML = '';
-                            new QRCode(qrDiv, { text: m.qrCodeId || doc.id, width: 300, height: 300, colorDark: '#0B1E33', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
-                        }
-                    }, 100);
+                    setTimeout(()=>{
+                        const qrDiv=document.getElementById(`qr-${doc.id}`);
+                        if(qrDiv && typeof QRCode!=='undefined'){ qrDiv.innerHTML=''; new QRCode(qrDiv,{text:m.qrCodeId||doc.id,width:300,height:300,colorDark:'#0B1E33',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H}); }
+                    },100);
                 });
                 document.getElementById('btnDownloadAll').classList.remove('hidden');
                 lucide.createIcons();
-                showToast(`✅ QR Code untuk ${membersSnap.size} anggota`, 'success');
-            } catch (error) { showToast('❌ Gagal generate QR', 'error'); }
+                showToast(`✅ QR Code untuk ${membersSnap.size} anggota`,'success');
+            } catch(e){ showToast('❌ Gagal generate QR','error'); }
         }
 
         function downloadSingleQR(memberId) {
-            const data = generatedQRData.find(d => d.id === memberId);
-            if (!data) return;
-            const qrDiv = document.getElementById(`qr-${memberId}`);
-            if (!qrDiv) return;
-            const qrCanvas = qrDiv.querySelector('canvas');
-            const qrImg = qrDiv.querySelector('img');
-            if (!qrCanvas && !qrImg) { showToast('❌ QR belum siap', 'error'); return; }
-            const finalCanvas = document.createElement('canvas');
-            const ctx = finalCanvas.getContext('2d');
-            const qrSize = 300, padding = 40, infoHeight = 100;
-            finalCanvas.width = qrSize + padding * 2;
-            finalCanvas.height = qrSize + padding * 2 + infoHeight;
-            ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
-            ctx.strokeStyle = '#2563EB'; ctx.lineWidth = 3; ctx.strokeRect(10, 10, finalCanvas.width - 20, finalCanvas.height - 20);
-            ctx.drawImage(qrCanvas || qrImg, padding, padding, qrSize, qrSize);
-            ctx.fillStyle = '#1e293b'; ctx.textAlign = 'center'; ctx.font = 'bold 20px Inter';
-            ctx.fillText(data.nama, finalCanvas.width / 2, qrSize + padding + 30);
-            ctx.font = '16px Inter'; ctx.fillStyle = '#64748b';
-            ctx.fillText(`${data.nomor} • ${data.akt}`, finalCanvas.width / 2, qrSize + padding + 55);
-            const link = document.createElement('a');
-            link.download = `QR-${data.nama.replace(/\s+/g, '-')}.png`;
-            link.href = finalCanvas.toDataURL('image/png', 1.0);
-            link.click();
-            showToast('✅ QR diunduh', 'success');
+            const data=generatedQRData.find(d=>d.id===memberId);
+            if(!data) return;
+            const qrDiv=document.getElementById(`qr-${memberId}`);
+            if(!qrDiv) return;
+            const qrCanvas=qrDiv.querySelector('canvas');
+            const qrImg=qrDiv.querySelector('img');
+            if(!qrCanvas&&!qrImg){ showToast('❌ QR belum siap','error'); return; }
+            const finalCanvas=document.createElement('canvas'); const ctx=finalCanvas.getContext('2d');
+            const qrSize=300,padding=40,infoHeight=100;
+            finalCanvas.width=qrSize+padding*2; finalCanvas.height=qrSize+padding*2+infoHeight;
+            ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,finalCanvas.width,finalCanvas.height);
+            ctx.strokeStyle='#2563EB'; ctx.lineWidth=3; ctx.strokeRect(10,10,finalCanvas.width-20,finalCanvas.height-20);
+            ctx.drawImage(qrCanvas||qrImg,padding,padding,qrSize,qrSize);
+            ctx.fillStyle='#1e293b'; ctx.textAlign='center'; ctx.font='bold 20px Inter';
+            ctx.fillText(data.nama,finalCanvas.width/2,qrSize+padding+30);
+            ctx.font='16px Inter'; ctx.fillStyle='#64748b';
+            ctx.fillText(`${data.nomor} • ${data.akt}`,finalCanvas.width/2,qrSize+padding+55);
+            const link=document.createElement('a');
+            link.download=`QR-${data.nama.replace(/\s+/g,'-')}.png`;
+            link.href=finalCanvas.toDataURL('image/png',1.0); link.click();
+            showToast('✅ QR diunduh','success');
         }
 
         async function downloadAllQRCodes() {
-            if (generatedQRData.length === 0) { showToast('❌ Generate QR dulu!', 'error'); return; }
-            try {
-                showToast('📦 Membuat ZIP...', 'info');
-                const zip = new JSZip();
-                const folder = zip.folder('QR-Codes');
-                for (const data of generatedQRData) {
-                    const qrDiv = document.getElementById(`qr-${data.id}`);
-                    if (!qrDiv) continue;
-                    const qrCanvas = qrDiv.querySelector('canvas');
-                    const qrImg = qrDiv.querySelector('img');
-                    if (!qrCanvas && !qrImg) continue;
-                    const finalCanvas = document.createElement('canvas');
-                    const ctx = finalCanvas.getContext('2d');
-                    const qrSize = 300, padding = 40, infoHeight = 100;
-                    finalCanvas.width = qrSize + padding * 2;
-                    finalCanvas.height = qrSize + padding * 2 + infoHeight;
-                    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
-                    ctx.strokeStyle = '#2563EB'; ctx.lineWidth = 3; ctx.strokeRect(10, 10, finalCanvas.width - 20, finalCanvas.height - 20);
-                    ctx.drawImage(qrCanvas || qrImg, padding, padding, qrSize, qrSize);
-                    ctx.fillStyle = '#1e293b'; ctx.textAlign = 'center'; ctx.font = 'bold 20px Inter';
-                    ctx.fillText(data.nama, finalCanvas.width / 2, qrSize + padding + 30);
-                    ctx.font = '16px Inter'; ctx.fillStyle = '#64748b';
-                    ctx.fillText(`${data.nomor} • ${data.akt}`, finalCanvas.width / 2, qrSize + padding + 55);
-                    const imageData = finalCanvas.toDataURL('image/png', 1.0).split(',')[1];
-                    folder.file(`QR-${data.nama.replace(/\s+/g, '-')}.png`, imageData, { base64: true });
+            if(generatedQRData.length===0){ showToast('❌ Generate QR dulu!','error'); return; }
+            try{
+                showToast('📦 Membuat ZIP...','info');
+                const zip=new JSZip(); const folder=zip.folder('QR-Codes');
+                for(const data of generatedQRData){
+                    const qrDiv=document.getElementById(`qr-${data.id}`); if(!qrDiv) continue;
+                    const qrCanvas=qrDiv.querySelector('canvas'); const qrImg=qrDiv.querySelector('img'); if(!qrCanvas&&!qrImg) continue;
+                    const finalCanvas=document.createElement('canvas'); const ctx=finalCanvas.getContext('2d');
+                    const qrSize=300,padding=40,infoHeight=100;
+                    finalCanvas.width=qrSize+padding*2; finalCanvas.height=qrSize+padding*2+infoHeight;
+                    ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,finalCanvas.width,finalCanvas.height);
+                    ctx.strokeStyle='#2563EB'; ctx.lineWidth=3; ctx.strokeRect(10,10,finalCanvas.width-20,finalCanvas.height-20);
+                    ctx.drawImage(qrCanvas||qrImg,padding,padding,qrSize,qrSize);
+                    ctx.fillStyle='#1e293b'; ctx.textAlign='center'; ctx.font='bold 20px Inter';
+                    ctx.fillText(data.nama,finalCanvas.width/2,qrSize+padding+30);
+                    ctx.font='16px Inter'; ctx.fillStyle='#64748b';
+                    ctx.fillText(`${data.nomor} • ${data.akt}`,finalCanvas.width/2,qrSize+padding+55);
+                    const imageData=finalCanvas.toDataURL('image/png',1.0).split(',')[1];
+                    folder.file(`QR-${data.nama.replace(/\s+/g,'-')}.png`,imageData,{base64:true});
                 }
-                const content = await zip.generateAsync({ type: 'blob' });
-                saveAs(content, `QR-Codes-${Date.now()}.zip`);
-                showToast('✅ ZIP diunduh!', 'success');
-            } catch (error) { showToast('❌ Gagal membuat ZIP', 'error'); }
+                const content=await zip.generateAsync({type:'blob'});
+                saveAs(content,`QR-Codes-${Date.now()}.zip`);
+                showToast('✅ ZIP diunduh!','success');
+            } catch(e){ showToast('❌ Gagal membuat ZIP','error'); }
         }
 
         // ==================== SCANNER ====================
         async function startScanner() {
-            const container = document.getElementById('scannerContainer');
-            if (!container || typeof Html5Qrcode === 'undefined') { showToast('❌ Scanner belum siap', 'error'); return; }
-            if (html5QrScanner === null) html5QrScanner = new Html5Qrcode("scannerContainer");
-            try {
-                await html5QrScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, async (decodedText) => { await stopScanner(); await processQRScan(decodedText); }, () => {});
+            const container=document.getElementById('scannerContainer');
+            if(!container||typeof Html5Qrcode==='undefined'){ showToast('❌ Scanner belum siap','error'); return; }
+            if(html5QrScanner===null) html5QrScanner=new Html5Qrcode("scannerContainer");
+            try{
+                await html5QrScanner.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:250}},
+                async(decodedText)=>{ await stopScanner(); await processQRScan(decodedText); },
+                ()=>{});
                 document.getElementById('btnStartScan').classList.add('hidden');
                 document.getElementById('btnStopScan').classList.remove('hidden');
-            } catch (error) { showToast('❌ Gagal akses kamera', 'error'); }
+            } catch(e){ showToast('❌ Gagal akses kamera','error'); }
         }
 
         async function stopScanner() {
-            if (html5QrScanner) { try { await html5QrScanner.stop(); } catch (e) {} }
+            if(html5QrScanner){ try{ await html5QrScanner.stop(); }catch(e){} }
             document.getElementById('btnStartScan').classList.remove('hidden');
             document.getElementById('btnStopScan').classList.add('hidden');
         }
 
         async function processQRScan(qrData) {
-            try {
-                const membersSnap = await db.collection('members').where('qrCodeId', '==', qrData).get();
-                if (membersSnap.empty) { showToast('❌ QR tidak dikenali!', 'error'); return; }
-                const memberDoc = membersSnap.docs[0];
-                const member = memberDoc.data();
-                const today = new Date().toISOString().split('T')[0];
-                const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                const existingSnap = await db.collection('attendances').where('memberId', '==', memberDoc.id).where('tanggal', '==', today).get();
-                if (!existingSnap.empty) { showToast('⚠️ Sudah absen hari ini!', 'error'); return; }
-                await db.collection('attendances').add({ memberId: memberDoc.id, namaAnggota: member.namaLengkap, nomorAnggota: member.nomorAnggota, aktId: member.aktId, aktNama: member.aktNama, tanggal: today, jam: now, status: 'hadir', scanMethod: 'qr', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+            try{
+                const membersSnap=await db.collection('members').where('qrCodeId','==',qrData).get();
+                if(membersSnap.empty){ showToast('❌ QR tidak dikenali!','error'); return; }
+                const memberDoc=membersSnap.docs[0]; const member=memberDoc.data();
+                const today=new Date().toISOString().split('T')[0];
+                const now=new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+                const existingSnap=await db.collection('attendances').where('memberId','==',memberDoc.id).where('tanggal','==',today).get();
+                if(!existingSnap.empty){ showToast('⚠️ Sudah absen hari ini!','error'); return; }
+                await db.collection('attendances').add({memberId:memberDoc.id,namaAnggota:member.namaLengkap,nomorAnggota:member.nomorAnggota,aktId:member.aktId,aktNama:member.aktNama,tanggal:today,jam:now,status:'hadir',scanMethod:'qr',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
                 document.getElementById('scanResult').classList.remove('hidden');
-                document.getElementById('scanDetail').textContent = `${member.namaLengkap} • ${member.nomorAnggota} • ${member.aktNama} • ${now}`;
-                showToast('✅ Absensi berhasil!', 'success');
+                document.getElementById('scanDetail').textContent=`${member.namaLengkap} • ${member.nomorAnggota} • ${member.aktNama} • ${now}`;
+                showToast('✅ Absensi berhasil!','success');
                 lucide.createIcons();
-                setTimeout(() => document.getElementById('scanResult').classList.add('hidden'), 3000);
-            } catch (error) { showToast('❌ Gagal proses', 'error'); }
+                setTimeout(()=>document.getElementById('scanResult').classList.add('hidden'),3000);
+            } catch(e){ showToast('❌ Gagal proses','error'); }
         }
 
         // ==================== MANUAL ABSENT ====================
         async function loadMembersByAkt() {
-            const aktId = document.getElementById('manualAkt').value;
-            const select = document.getElementById('manualMember');
-            if (!aktId || !select) return;
-            try {
-                const snap = await db.collection('members').where('aktId', '==', aktId).where('statusAktif', '==', true).get();
-                let options = '<option value="">-- Pilih Anggota --</option>';
-                snap.forEach(doc => { const m = doc.data(); options += `<option value="${doc.id}">${m.namaLengkap} (${m.nomorAnggota})</option>`; });
-                select.innerHTML = options;
-            } catch (error) { console.error('Error:', error); }
+            const aktId=document.getElementById('manualAkt').value;
+            const select=document.getElementById('manualMember');
+            if(!aktId||!select) return;
+            try{
+                const snap=await db.collection('members').where('aktId','==',aktId).where('statusAktif','==',true).get();
+                let options='<option value="">-- Pilih Anggota --</option>';
+                snap.forEach(doc=>{ const m=doc.data(); options+=`<option value="${doc.id}">${m.namaLengkap} (${m.nomorAnggota})</option>`; });
+                select.innerHTML=options;
+            }catch(e){ console.error(e); }
         }
 
         async function submitManualAbsent() {
-            const memberId = document.getElementById('manualMember').value;
-            const status = document.getElementById('manualStatus').value;
-            const keterangan = document.getElementById('manualKeterangan').value.trim();
-            if (!memberId || !status) { showToast('❌ Pilih anggota dan status!', 'error'); return; }
-            try {
-                const memberDoc = await db.collection('members').doc(memberId).get();
-                const member = memberDoc.data();
-                const today = new Date().toISOString().split('T')[0];
-                const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                const existingSnap = await db.collection('attendances').where('memberId', '==', memberId).where('tanggal', '==', today).get();
-                if (!existingSnap.empty) { showToast('⚠️ Sudah absen hari ini!', 'error'); return; }
-                await db.collection('attendances').add({ memberId, namaAnggota: member.namaLengkap, nomorAnggota: member.nomorAnggota, aktId: member.aktId, aktNama: member.aktNama, tanggal: today, jam: now, status, keterangan, scanMethod: 'manual', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-                showToast('✅ Absensi manual berhasil!', 'success');
-                document.getElementById('manualMember').value = '';
-                document.getElementById('manualKeterangan').value = '';
-            } catch (error) { showToast('❌ Gagal menyimpan', 'error'); }
+            const memberId=document.getElementById('manualMember').value;
+            const status=document.getElementById('manualStatus').value;
+            const keterangan=document.getElementById('manualKeterangan').value.trim();
+            if(!memberId||!status){ showToast('❌ Pilih anggota dan status!','error'); return; }
+            try{
+                const memberDoc=await db.collection('members').doc(memberId).get();
+                const member=memberDoc.data();
+                const today=new Date().toISOString().split('T')[0];
+                const now=new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+                const existingSnap=await db.collection('attendances').where('memberId','==',memberId).where('tanggal','==',today).get();
+                if(!existingSnap.empty){ showToast('⚠️ Sudah absen hari ini!','error'); return; }
+                await db.collection('attendances').add({memberId,namaAnggota:member.namaLengkap,nomorAnggota:member.nomorAnggota,aktId:member.aktId,aktNama:member.aktNama,tanggal:today,jam:now,status,keterangan,scanMethod:'manual',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+                showToast('✅ Absensi manual berhasil!','success');
+                document.getElementById('manualMember').value=''; document.getElementById('manualKeterangan').value='';
+            }catch(e){ showToast('❌ Gagal menyimpan','error'); }
         }
 
         // ==================== ATTENDANCE HISTORY ====================
         async function loadAttendanceHistory() {
-            try {
-                const snap = await db.collection('attendances').orderBy('createdAt', 'desc').limit(100).get();
-                const tbody = document.getElementById('attendanceTableBody');
-                if (snap.empty) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-12 text-gray-500">Belum ada data</td></tr>'; }
-                else {
-                    tbody.innerHTML = '';
-                    snap.forEach(doc => {
-                        const a = doc.data();
-                        tbody.innerHTML += `<tr><td>${a.tanggal}</td><td>${a.namaAnggota}</td><td>${a.aktNama}</td><td>${a.jam}</td><td><span class="badge ${a.status === 'hadir' ? 'badge-success' : a.status === 'izin' ? 'badge-warning' : a.status === 'sakit' ? 'badge-purple' : 'badge-danger'}">${a.status.toUpperCase()}</span></td></tr>`;
-                    });
-                }
+            try{
+                const snap=await db.collection('attendances').orderBy('createdAt','desc').limit(100).get();
+                const tbody=document.getElementById('attendanceTableBody');
+                if(snap.empty){ tbody.innerHTML='<tr><td colspan="5" class="text-center py-12 text-gray-500">Belum ada data</td></tr>'; return; }
+                tbody.innerHTML='';
+                snap.forEach(doc=>{
+                    const a=doc.data();
+                    tbody.innerHTML+=`<tr><td>${a.tanggal}</td><td>${a.namaAnggota}</td><td>${a.aktNama}</td><td>${a.jam}</td><td><span class="badge ${a.status==='hadir'?'badge-success':a.status==='izin'?'badge-warning':a.status==='sakit'?'badge-purple':'badge-danger'}">${a.status.toUpperCase()}</span></td></tr>`;
+                });
                 lucide.createIcons();
-            } catch (error) { console.error('Error:', error); }
+            }catch(e){ console.error(e); }
         }
 
         // ==================== REKAP ====================
         async function loadRekap() {
-            try {
-                const now = new Date();
-                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-                const today = now.toISOString().split('T')[0];
-                const snap = await db.collection('attendances').where('tanggal', '>=', firstDay).where('tanggal', '<=', today).get();
-                let hadir = 0, izin = 0, sakit = 0, alpha = 0;
-                snap.forEach(doc => { const d = doc.data(); if (d.status === 'hadir') hadir++; else if (d.status === 'izin') izin++; else if (d.status === 'sakit') sakit++; else if (d.status === 'alpha') alpha++; });
-                const total = hadir + izin + sakit + alpha;
-                const persentase = total > 0 ? ((hadir / total) * 100).toFixed(1) : 0;
-                document.getElementById('rekapHadir').textContent = hadir;
-                document.getElementById('rekapIzin').textContent = izin;
-                document.getElementById('rekapSakit').textContent = sakit;
-                document.getElementById('rekapAlpha').textContent = alpha;
-                document.getElementById('rekapPersentase').textContent = persentase + '%';
-                document.getElementById('rekapProgressBar').style.width = persentase + '%';
-            } catch (error) { console.error('Error:', error); }
+            try{
+                const now=new Date();
+                const firstDay=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split('T')[0];
+                const today=now.toISOString().split('T')[0];
+                const snap=await db.collection('attendances').where('tanggal','>=',firstDay).where('tanggal','<=',today).get();
+                let hadir=0,izin=0,sakit=0,alpha=0;
+                snap.forEach(doc=>{const d=doc.data();if(d.status==='hadir')hadir++;else if(d.status==='izin')izin++;else if(d.status==='sakit')sakit++;else if(d.status==='alpha')alpha++;});
+                const total=hadir+izin+sakit+alpha;
+                const persentase=total>0?((hadir/total)*100).toFixed(1):0;
+                document.getElementById('rekapHadir').textContent=hadir;
+                document.getElementById('rekapIzin').textContent=izin;
+                document.getElementById('rekapSakit').textContent=sakit;
+                document.getElementById('rekapAlpha').textContent=alpha;
+                document.getElementById('rekapPersentase').textContent=persentase+'%';
+                document.getElementById('rekapProgressBar').style.width=persentase+'%';
+            }catch(e){ console.error(e); }
         }
 
         // ==================== PENGAJUAN ====================
         async function loadPengajuan() {
-            try {
-                const snap = await db.collection('pengajuan_izin').orderBy('createdAt', 'desc').get();
-                const container = document.getElementById('pengajuanList');
-                if (snap.empty) { container.innerHTML = '<p class="text-gray-500 text-center py-8">Tidak ada pengajuan</p>'; return; }
-                container.innerHTML = '';
-                snap.forEach(doc => {
-                    const p = doc.data();
-                    container.innerHTML += `<div class="card flex justify-between items-center"><div><p class="font-medium">${p.namaAnggota}</p><p class="text-sm text-gray-500">${p.jenis.toUpperCase()} - ${p.tanggal}</p><p class="text-sm text-gray-400">${p.alasan}</p></div><div class="flex gap-2"><button onclick="approveIzin('${doc.id}')" class="btn-primary text-xs">Approve</button><button onclick="rejectIzin('${doc.id}')" class="btn-danger text-xs">Tolak</button></div></div>`;
+            try{
+                const snap=await db.collection('pengajuan_izin').orderBy('createdAt','desc').get();
+                const container=document.getElementById('pengajuanList');
+                if(snap.empty){ container.innerHTML='<p class="text-gray-500 text-center py-8">Tidak ada pengajuan</p>'; return; }
+                container.innerHTML='';
+                snap.forEach(doc=>{
+                    const p=doc.data();
+                    container.innerHTML+=`<div class="card flex justify-between items-center"><div><p class="font-medium">${p.namaAnggota}</p><p class="text-sm text-gray-500">${p.jenis.toUpperCase()} - ${p.tanggal}</p><p class="text-sm text-gray-400">${p.alasan}</p></div><div class="flex gap-2"><button onclick="approveIzin('${doc.id}')" class="btn-primary text-xs">Approve</button><button onclick="rejectIzin('${doc.id}')" class="btn-danger text-xs">Tolak</button></div></div>`;
                 });
                 lucide.createIcons();
-            } catch (error) { console.error('Error:', error); }
+            }catch(e){ console.error(e); }
         }
 
         async function approveIzin(id) {
-            try {
-                const doc = await db.collection('pengajuan_izin').doc(id).get();
-                const p = doc.data();
-                const today = new Date().toISOString().split('T')[0];
-                const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                await db.collection('attendances').add({ memberId: p.memberId, namaAnggota: p.namaAnggota, nomorAnggota: p.nomorAnggota, aktId: p.aktId, aktNama: p.aktNama, tanggal: p.tanggal, jam: now, status: p.jenis, keterangan: p.alasan, scanMethod: 'pengajuan', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+            try{
+                const doc=await db.collection('pengajuan_izin').doc(id).get();
+                const p=doc.data();
+                const now=new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+                await db.collection('attendances').add({memberId:p.memberId,namaAnggota:p.namaAnggota,nomorAnggota:p.nomorAnggota,aktId:p.aktId,aktNama:p.aktNama,tanggal:p.tanggal,jam:now,status:p.jenis,keterangan:p.alasan,scanMethod:'pengajuan',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
                 await db.collection('pengajuan_izin').doc(id).delete();
-                showToast('✅ Izin disetujui', 'success');
-                loadPengajuan();
-            } catch (error) { showToast('❌ Gagal approve', 'error'); }
+                showToast('✅ Izin disetujui','success'); loadPengajuan();
+            }catch(e){ showToast('❌ Gagal approve','error'); }
         }
 
         async function rejectIzin(id) {
-            try {
+            try{
                 await db.collection('pengajuan_izin').doc(id).delete();
-                showToast('❌ Izin ditolak', 'info');
-                loadPengajuan();
-            } catch (error) { showToast('❌ Gagal tolak', 'error'); }
+                showToast('❌ Izin ditolak','info'); loadPengajuan();
+            }catch(e){ showToast('❌ Gagal tolak','error'); }
         }
 
         // ==================== ANGGOTA FUNCTIONS ====================
         async function loadProfilAnggota() {
-            try {
-                const doc = await db.collection('members').doc(currentUser.memberId).get();
-                const m = doc.data();
-                document.getElementById('profilAnggotaContent').innerHTML = `
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-xl font-bold">${m.namaLengkap.charAt(0)}</div>
-                        <div><h3 class="font-bold text-lg">${m.namaLengkap}</h3><p class="text-sm text-gray-500">${m.nomorAnggota} • ${m.aktNama}</p></div>
-                    </div>
-                    <div class="space-y-2 text-sm">
-                        <p><strong>Jenis Kelamin:</strong> ${m.jenisKelamin === 'L' ? 'Laki-laki' : 'Perempuan'}</p>
-                        <p><strong>Jabatan:</strong> ${m.jabatan || '-'}</p>
-                        <p><strong>No HP:</strong> ${m.noHP || '-'}</p>
-                    </div>
-                `;
-            } catch (error) { console.error('Error:', error); }
+            try{
+                const doc=await db.collection('members').doc(currentUser.memberId).get();
+                const m=doc.data();
+                document.getElementById('profilAnggotaContent').innerHTML=`<div class="flex items-center gap-4 mb-4"><div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-xl font-bold">${m.namaLengkap.charAt(0)}</div><div><h3 class="font-bold text-lg">${m.namaLengkap}</h3><p class="text-sm text-gray-500">${m.nomorAnggota} • ${m.aktNama}</p></div></div><div class="space-y-2 text-sm"><p><strong>Jenis Kelamin:</strong> ${m.jenisKelamin==='L'?'Laki-laki':'Perempuan'}</p><p><strong>Jabatan:</strong> ${m.jabatan||'-'}</p><p><strong>No HP:</strong> ${m.noHP||'-'}</p></div>`;
+            }catch(e){ console.error(e); }
         }
 
         async function loadRiwayatAnggota() {
-            try {
-                const snap = await db.collection('attendances').where('memberId', '==', currentUser.memberId).orderBy('createdAt', 'desc').get();
-                const tbody = document.getElementById('riwayatAnggotaTable');
-                if (snap.empty) { tbody.innerHTML = '<tr><td colspan="3" class="text-center py-8">Belum ada riwayat</td></tr>'; return; }
-                tbody.innerHTML = '';
-                snap.forEach(doc => {
-                    const a = doc.data();
-                    tbody.innerHTML += `<tr><td>${a.tanggal}</td><td>${a.jam}</td><td><span class="badge ${a.status === 'hadir' ? 'badge-success' : 'badge-warning'}">${a.status.toUpperCase()}</span></td></tr>`;
+            try{
+                const snap=await db.collection('attendances').where('memberId','==',currentUser.memberId).orderBy('createdAt','desc').get();
+                const tbody=document.getElementById('riwayatAnggotaTable');
+                if(snap.empty){ tbody.innerHTML='<tr><td colspan="3" class="text-center py-8">Belum ada riwayat</td></tr>'; return; }
+                tbody.innerHTML='';
+                snap.forEach(doc=>{
+                    const a=doc.data();
+                    tbody.innerHTML+=`<tr><td>${a.tanggal}</td><td>${a.jam}</td><td><span class="badge ${a.status==='hadir'?'badge-success':'badge-warning'}">${a.status.toUpperCase()}</span></td></tr>`;
                 });
-            } catch (error) { console.error('Error:', error); }
+            }catch(e){ console.error(e); }
         }
 
         async function submitIzin() {
-            const tanggal = document.getElementById('izinTanggal').value;
-            const jenis = document.getElementById('izinJenis').value;
-            const alasan = document.getElementById('izinAlasan').value.trim();
-            if (!tanggal || !alasan) { showToast('❌ Lengkapi form!', 'error'); return; }
-            try {
-                const memberDoc = await db.collection('members').doc(currentUser.memberId).get();
-                const member = memberDoc.data();
-                await db.collection('pengajuan_izin').add({
-                    memberId: currentUser.memberId,
-                    namaAnggota: member.namaLengkap,
-                    nomorAnggota: member.nomorAnggota,
-                    aktId: member.aktId,
-                    aktNama: member.aktNama,
-                    tanggal,
-                    jenis,
-                    alasan,
-                    status: 'pending',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                showToast('✅ Pengajuan izin dikirim!', 'success');
-                document.getElementById('izinTanggal').value = '';
-                document.getElementById('izinAlasan').value = '';
-            } catch (error) { showToast('❌ Gagal kirim', 'error'); }
+            const tanggal=document.getElementById('izinTanggal').value;
+            const jenis=document.getElementById('izinJenis').value;
+            const alasan=document.getElementById('izinAlasan').value.trim();
+            if(!tanggal||!alasan){ showToast('❌ Lengkapi form!','error'); return; }
+            try{
+                const memberDoc=await db.collection('members').doc(currentUser.memberId).get();
+                const member=memberDoc.data();
+                await db.collection('pengajuan_izin').add({memberId:currentUser.memberId,namaAnggota:member.namaLengkap,nomorAnggota:member.nomorAnggota,aktId:member.aktId,aktNama:member.aktNama,tanggal,jenis,alasan,status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+                showToast('✅ Pengajuan izin dikirim!','success');
+                document.getElementById('izinTanggal').value=''; document.getElementById('izinAlasan').value='';
+            }catch(e){ showToast('❌ Gagal kirim','error'); }
         }
 
-        // ==================== EXPORT FUNCTIONS ====================
+        // ==================== EXPORT ====================
         function updateExportRange() {
-            const periode = document.getElementById('exportPeriode').value;
-            const customRange = document.getElementById('exportCustomRange');
-            if (periode === 'custom') {
-                customRange.classList.remove('hidden');
-            } else {
-                customRange.classList.add('hidden');
-            }
+            const periode=document.getElementById('exportPeriode').value;
+            document.getElementById('exportCustomRange').classList.toggle('hidden',periode!=='custom');
         }
 
         async function loadExportData() {
             await loadAktOptions('exportAkt');
-            // Set default dates
-            const now = new Date();
-            const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
-            document.getElementById('exportStartDate').value = startDate.toISOString().split('T')[0];
-            document.getElementById('exportEndDate').value = now.toISOString().split('T')[0];
+            const now=new Date();
+            document.getElementById('exportStartDate').value=new Date(now.getFullYear(),now.getMonth(),now.getDate()-7).toISOString().split('T')[0];
+            document.getElementById('exportEndDate').value=now.toISOString().split('T')[0];
             updateExportRange();
             await updateExportPreview();
         }
 
         async function getExportDateRange() {
-            const periode = document.getElementById('exportPeriode').value;
-            const now = new Date();
-            let startDate, endDate;
-            
-            if (periode === 'mingguan') {
-                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
-                endDate = now;
-            } else if (periode === 'bulanan') {
-                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-                endDate = now;
-            } else if (periode === 'custom') {
-                startDate = new Date(document.getElementById('exportStartDate').value);
-                endDate = new Date(document.getElementById('exportEndDate').value);
-            }
-            
-            startDate.setHours(0, 0, 0, 0);
-            endDate.setHours(23, 59, 59, 999);
-            
-            return {
-                start: startDate.toISOString().split('T')[0],
-                end: endDate.toISOString().split('T')[0]
-            };
+            const periode=document.getElementById('exportPeriode').value;
+            const now=new Date();
+            let startDate,endDate;
+            if(periode==='mingguan'){ startDate=new Date(now.getFullYear(),now.getMonth(),now.getDate()-7); endDate=now; }
+            else if(periode==='bulanan'){ startDate=new Date(now.getFullYear(),now.getMonth(),1); endDate=now; }
+            else if(periode==='custom'){ startDate=new Date(document.getElementById('exportStartDate').value); endDate=new Date(document.getElementById('exportEndDate').value); }
+            startDate.setHours(0,0,0,0); endDate.setHours(23,59,59,999);
+            return { start:startDate.toISOString().split('T')[0], end:endDate.toISOString().split('T')[0] };
         }
 
         async function fetchExportData() {
-            const range = await getExportDateRange();
-            const statusFilter = document.getElementById('exportStatus').value;
-            const aktFilter = document.getElementById('exportAkt').value;
-            
-            let query = db.collection('attendances')
-                .where('tanggal', '>=', range.start)
-                .where('tanggal', '<=', range.end);
-            
-            const snap = await query.orderBy('tanggal', 'desc').get();
-            
-            let data = [];
-            snap.forEach(doc => {
-                const d = doc.data();
-                if (statusFilter !== 'semua' && d.status !== statusFilter) return;
-                if (aktFilter && d.aktId !== aktFilter) return;
-                data.push(d);
-            });
-            
+            const range=await getExportDateRange();
+            const statusFilter=document.getElementById('exportStatus').value;
+            const aktFilter=document.getElementById('exportAkt').value;
+            let query=db.collection('attendances').where('tanggal','>=',range.start).where('tanggal','<=',range.end);
+            const snap=await query.orderBy('tanggal','desc').get();
+            let data=[];
+            snap.forEach(doc=>{ const d=doc.data(); if(statusFilter!=='semua'&&d.status!==statusFilter) return; if(aktFilter&&d.aktId!==aktFilter) return; data.push(d); });
             return data;
         }
 
         async function updateExportPreview() {
-            try {
-                const data = await fetchExportData();
-                const container = document.getElementById('exportPreview');
-                
-                if (data.length === 0) {
-                    container.innerHTML = '<p class="text-gray-500 text-center py-8">Tidak ada data untuk filter ini</p>';
-                    return;
-                }
-                
-                let html = '<table><thead><tr><th>Tanggal</th><th>Nama</th><th>Akt</th><th>Jam</th><th>Status</th></tr></thead><tbody>';
-                data.forEach(d => {
-                    html += `<tr><td>${d.tanggal}</td><td>${d.namaAnggota}</td><td>${d.aktNama}</td><td>${d.jam}</td><td><span class="badge ${d.status === 'hadir' ? 'badge-success' : d.status === 'izin' ? 'badge-warning' : d.status === 'sakit' ? 'badge-purple' : 'badge-danger'}">${d.status.toUpperCase()}</span></td></tr>`;
-                });
-                html += '</tbody></table>';
-                container.innerHTML = html;
-                lucide.createIcons();
-            } catch (error) {
-                console.error('Preview error:', error);
-                showToast('❌ Gagal memuat preview', 'error');
-            }
+            try{
+                const data=await fetchExportData();
+                const container=document.getElementById('exportPreview');
+                if(data.length===0){ container.innerHTML='<p class="text-gray-500 text-center py-8">Tidak ada data untuk filter ini</p>'; return; }
+                let html='<table><thead><tr><th>Tanggal</th><th>Nama</th><th>Akt</th><th>Jam</th><th>Status</th></tr></thead><tbody>';
+                data.forEach(d=>{ html+=`<tr><td>${d.tanggal}</td><td>${d.namaAnggota}</td><td>${d.aktNama}</td><td>${d.jam}</td><td><span class="badge ${d.status==='hadir'?'badge-success':d.status==='izin'?'badge-warning':d.status==='sakit'?'badge-purple':'badge-danger'}">${d.status.toUpperCase()}</span></td></tr>`; });
+                html+='</tbody></table>'; container.innerHTML=html; lucide.createIcons();
+            }catch(e){ console.error(e); showToast('❌ Gagal memuat preview','error'); }
         }
 
         function exportToCSV() {
-            fetchExportData().then(data => {
-                if (data.length === 0) { showToast('❌ Tidak ada data', 'error'); return; }
-                let csv = 'Tanggal,Nama,Akt,Jam,Status,Keterangan\n';
-                data.forEach(d => {
-                    csv += `${d.tanggal},${d.namaAnggota},${d.aktNama},${d.jam},${d.status},${d.keterangan || ''}\n`;
-                });
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                saveAs(blob, `Rekap-Absensi-${Date.now()}.csv`);
-                showToast('✅ CSV diunduh!', 'success');
+            fetchExportData().then(data=>{
+                if(data.length===0){ showToast('❌ Tidak ada data','error'); return; }
+                let csv='Tanggal,Nama,Akt,Jam,Status,Keterangan\n';
+                data.forEach(d=>{ csv+=`${d.tanggal},${d.namaAnggota},${d.aktNama},${d.jam},${d.status},${d.keterangan||''}\n`; });
+                const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); saveAs(blob,`Rekap-Absensi-${Date.now()}.csv`);
+                showToast('✅ CSV diunduh!','success');
             });
         }
 
         function exportToExcel() {
-            fetchExportData().then(data => {
-                if (data.length === 0) { showToast('❌ Tidak ada data', 'error'); return; }
-                const wsData = data.map(d => ({
-                    'Tanggal': d.tanggal,
-                    'Nama': d.namaAnggota,
-                    'Akt': d.aktNama,
-                    'Jam': d.jam,
-                    'Status': d.status.toUpperCase(),
-                    'Keterangan': d.keterangan || ''
-                }));
-                const ws = XLSX.utils.json_to_sheet(wsData);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, 'Rekap');
-                XLSX.writeFile(wb, `Rekap-Absensi-${Date.now()}.xlsx`);
-                showToast('✅ Excel diunduh!', 'success');
+            fetchExportData().then(data=>{
+                if(data.length===0){ showToast('❌ Tidak ada data','error'); return; }
+                const wsData=data.map(d=>({'Tanggal':d.tanggal,'Nama':d.namaAnggota,'Akt':d.aktNama,'Jam':d.jam,'Status':d.status.toUpperCase(),'Keterangan':d.keterangan||''}));
+                const ws=XLSX.utils.json_to_sheet(wsData); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Rekap');
+                XLSX.writeFile(wb,`Rekap-Absensi-${Date.now()}.xlsx`);
+                showToast('✅ Excel diunduh!','success');
             });
         }
 
         function exportToPDF() {
-            fetchExportData().then(data => {
-                if (data.length === 0) { showToast('❌ Tidak ada data', 'error'); return; }
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                doc.setFontSize(16);
-                doc.text('Rekap Absensi Paskibra', 14, 20);
-                doc.setFontSize(10);
-                doc.text(`Periode: ${document.getElementById('exportStartDate').value || '-'} s/d ${document.getElementById('exportEndDate').value || '-'}`, 14, 30);
-                doc.text(`Jumlah data: ${data.length}`, 14, 38);
-                
-                let y = 50;
-                doc.setFontSize(8);
-                doc.text('No', 14, y);
-                doc.text('Tanggal', 25, y);
-                doc.text('Nama', 50, y);
-                doc.text('Akt', 100, y);
-                doc.text('Jam', 120, y);
-                doc.text('Status', 140, y);
-                y += 5;
-                
-                data.forEach((d, i) => {
-                    if (y > 280) { doc.addPage(); y = 20; }
-                    doc.text(String(i + 1), 14, y);
-                    doc.text(d.tanggal || '-', 25, y);
-                    doc.text(d.namaAnggota || '-', 50, y);
-                    doc.text(d.aktNama || '-', 100, y);
-                    doc.text(d.jam || '-', 120, y);
-                    doc.text(d.status.toUpperCase(), 140, y);
-                    y += 5;
-                });
-                
+            fetchExportData().then(data=>{
+                if(data.length===0){ showToast('❌ Tidak ada data','error'); return; }
+                const { jsPDF } = window.jspdf; const doc=new jsPDF();
+                doc.setFontSize(16); doc.text('Rekap Absensi Paskibra',14,20);
+                doc.setFontSize(10); doc.text(`Periode: ${document.getElementById('exportStartDate').value||'-'} s/d ${document.getElementById('exportEndDate').value||'-'}`,14,30);
+                doc.text(`Jumlah data: ${data.length}`,14,38);
+                let y=50; doc.setFontSize(8);
+                doc.text('No',14,y); doc.text('Tanggal',25,y); doc.text('Nama',50,y); doc.text('Akt',100,y); doc.text('Jam',120,y); doc.text('Status',140,y); y+=5;
+                data.forEach((d,i)=>{ if(y>280){ doc.addPage(); y=20; } doc.text(String(i+1),14,y); doc.text(d.tanggal||'-',25,y); doc.text(d.namaAnggota||'-',50,y); doc.text(d.aktNama||'-',100,y); doc.text(d.jam||'-',120,y); doc.text(d.status.toUpperCase(),140,y); y+=5; });
                 doc.save(`Rekap-Absensi-${Date.now()}.pdf`);
-                showToast('✅ PDF diunduh!', 'success');
+                showToast('✅ PDF diunduh!','success');
             });
         }
 
         // ==================== UTILS ====================
-        function closeModal(modalId) { document.getElementById(modalId)?.classList.remove('active'); }
-        function toggleMobileMenu() { document.getElementById('mobileMenu').classList.toggle('hidden'); }
-        function toggleDarkMode() { isDarkMode = !isDarkMode; document.documentElement.classList.toggle('dark', isDarkMode); localStorage.setItem('darkMode', isDarkMode ? '1' : '0'); updateDarkModeIcons(); }
-        function updateDarkModeIcons() { const icon = isDarkMode ? 'sun' : 'moon'; document.getElementById('darkIcon')?.setAttribute('data-lucide', icon); lucide.createIcons(); }
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
-            toast.innerHTML = message;
-            container.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 3000);
+        function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+        function toggleMobileMenu(){ document.getElementById('mobileMenu').classList.toggle('hidden'); }
+        function toggleDarkMode(){ isDarkMode=!isDarkMode; document.documentElement.classList.toggle('dark',isDarkMode); localStorage.setItem('darkMode',isDarkMode?'1':'0'); updateDarkModeIcons(); }
+        function updateDarkModeIcons(){ const icon=isDarkMode?'sun':'moon'; const el=document.getElementById('darkIcon'); if(el) el.setAttribute('data-lucide',icon); lucide.createIcons(); }
+        function showToast(message,type='info'){
+            const container=document.getElementById('toastContainer'); const toast=document.createElement('div');
+            toast.className=`toast toast-${type}`; toast.innerHTML=message; container.appendChild(toast);
+            setTimeout(()=>{ toast.style.opacity='0'; toast.style.transition='opacity 0.3s'; setTimeout(()=>toast.remove(),300); },3000);
         }
-        document.addEventListener('click', (e) => { if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('active'); });
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active')); });
+        document.addEventListener('click',(e)=>{ if(e.target.classList.contains('modal-overlay')) e.target.classList.remove('active'); });
+        document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') document.querySelectorAll('.modal-overlay.active').forEach(m=>m.classList.remove('active')); });
 
         console.log('🚀 Paskibra Digital System Ready!');
-        console.log('📊 Multi-Level User + Export Rekap');
     </script>
-
 </body>
 </html>
