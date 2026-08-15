@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Paskibra Digital - Absensi & Manajemen</title>
+    <title>Sistem Absensi & Manajemen</title>
     
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     
     <!-- Tailwind CSS -->
@@ -25,9 +25,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     
-    <!-- Export Libraries -->
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Export Libraries (Excel & PDF) -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -36,80 +40,271 @@
                 extend: {
                     fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
                     colors: {
-                        navy: { DEFAULT: '#0B1E33', 50: '#E8EDF3', 100: '#C5D0DD' },
+                        navy: { DEFAULT: '#0B1E33' },
                         accent: { blue: '#2563EB', light: '#EFF6FF' }
                     }
                 }
             }
         }
     </script>
-    
+
     <style>
-        :root { --bg: #f1f5f9; --card: #ffffff; --text: #1e293b; --text-secondary: #64748b; --border: #e2e8f0; }
-        .dark { --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --text-secondary: #94a3b8; --border: #334155; }
+        :root {
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --primary: #2563EB;
+            --primary-hover: #1d4ed8;
+            --sidebar-bg: #ffffff;
+            --sidebar-text: #64748b;
+            --sidebar-active-bg: #EFF6FF;
+            --sidebar-active-text: #2563EB;
+        }
+        .dark {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --sidebar-bg: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-active-bg: #1e3a5f;
+            --sidebar-active-text: #60a5fa;
+        }
+        
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; transition: background 0.5s, color 0.5s; min-height: 100vh; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
         .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .sidebar-link { padding: 0.75rem 1rem; border-radius: 0.75rem; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 0.75rem; color: var(--text-secondary); font-weight: 500; border: none; background: none; width: 100%; text-align: left; font-size: 0.9rem; }
-        .sidebar-link:hover { background: rgba(37,99,235,0.05); color: #2563EB; transform: translateX(4px); }
-        .sidebar-link.active { background: #EFF6FF; color: #2563EB; font-weight: 600; }
-        .dark .sidebar-link:hover { background: rgba(37,99,235,0.15); }
-        .dark .sidebar-link.active { background: #1e3a5f; color: #60a5fa; }
-        .btn-primary { background: #2563EB; color: white; padding: 0.625rem 1.25rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; cursor: pointer; border: none; transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.5rem; }
-        .btn-primary:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
-        .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; transform: none; }
-        .btn-secondary { background: transparent; border: 1.5px solid var(--border); color: var(--text-secondary); padding: 0.625rem 1.25rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 0.5rem; }
-        .btn-secondary:hover { border-color: #2563EB; color: #2563EB; transform: translateY(-2px); }
-        .btn-danger { background: #dc2626; color: white; padding: 0.625rem 1.25rem; border-radius: 0.75rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.3s; }
-        .btn-danger:hover { background: #b91c1c; transform: translateY(-2px); }
-        .page { display: none; opacity: 0; transform: translateY(20px); }
-        .page.active { display: block; opacity: 1; transform: translateY(0); animation: pageIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        @keyframes pageIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .table-container { overflow-x: auto; border-radius: 0.75rem; border: 1px solid var(--border); }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 0.75rem 1rem; background: #f8fafc; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 600; }
+        
+        .sidebar-link {
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--sidebar-text);
+            font-weight: 500;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+        .sidebar-link:hover { background: rgba(37,99,235,0.05); color: var(--primary); }
+        .sidebar-link.active { 
+            background: var(--sidebar-active-bg); 
+            color: var(--sidebar-active-text); 
+            font-weight: 600; 
+        }
+        .sidebar-link.active:hover { background: var(--sidebar-active-bg); color: var(--sidebar-active-text); }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 2px 8px rgba(37,99,235,0.2); }
+        .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-primary:active { transform: translateY(0); }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 1.5px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .btn-secondary:hover { border-color: var(--primary); color: var(--primary); background: rgba(37,99,235,0.05); }
+        
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+            padding: 0.625rem 1rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+        .btn-danger:hover { background: #b91c1c; }
+        
+        .btn-success {
+            background: #059669;
+            color: white;
+            padding: 0.625rem 1rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+        .btn-success:hover { background: #047857; }
+        
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .table-container { 
+            overflow-x: auto; 
+            border-radius: 0.75rem; 
+            border: 1px solid var(--border); 
+            background: var(--card);
+        }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { text-align: left; padding: 0.75rem 1rem; background: #f8fafc; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; font-weight: 600; white-space: nowrap; position: sticky; top: 0; }
         td { padding: 0.75rem 1rem; border-top: 1px solid var(--border); font-size: 0.875rem; }
         .dark th { background: #1e293b; color: #94a3b8; }
-        tr:hover td { background: rgba(37,99,235,0.02); }
-        input, select, textarea { border: 1.5px solid var(--border); border-radius: 0.6rem; padding: 0.625rem 0.875rem; font-size: 0.875rem; background: var(--card); color: var(--text); width: 100%; transition: all 0.3s; font-family: inherit; }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        tbody tr:hover { background: rgba(37,99,235,0.02); }
+        
+        input, select, textarea {
+            border: 1.5px solid var(--border);
+            border-radius: 0.6rem;
+            padding: 0.625rem 0.875rem;
+            font-size: 0.875rem;
+            background: var(--card);
+            color: var(--text);
+            width: 100%;
+            font-family: inherit;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        input:focus, select:focus, textarea:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+        }
+        input::placeholder, textarea::placeholder { color: var(--text-secondary); opacity: 0.7; }
+        
         label { font-weight: 600; font-size: 0.875rem; margin-bottom: 0.375rem; display: block; color: var(--text); }
-        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; }
+        
+        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em; }
         .badge-success { background: #d1fae5; color: #065f46; }
         .badge-warning { background: #fef3c7; color: #92400e; }
         .badge-danger { background: #fee2e2; color: #991b1b; }
         .badge-info { background: #dbeafe; color: #1e40af; }
         .badge-purple { background: #ede9fe; color: #5b21b6; }
-        .dark .badge-success { background: #064e3b; color: #a7f3d0; }
-        .dark .badge-warning { background: #78350f; color: #fde68a; }
-        .dark .badge-danger { background: #7f1d1d; color: #fecaca; }
-        .dark .badge-info { background: #1e3a5f; color: #bfdbfe; }
-        .dark .badge-purple { background: #4c1d95; color: #ddd6fe; }
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 1rem; }
-        .modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
-        .modal-content { background: var(--card); border-radius: 1rem; padding: 2rem; max-width: 500px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: slideUp 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: var(--card);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 520px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: modalIn 0.3s ease;
+        }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
         .toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 2000; display: flex; flex-direction: column; gap: 0.5rem; }
-        .toast { padding: 1rem 1.5rem; border-radius: 0.75rem; color: white; font-weight: 500; font-size: 0.875rem; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: slideIn 0.3s; }
+        .toast { padding: 1rem 1.5rem; border-radius: 0.75rem; color: white; font-weight: 500; animation: slideIn 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.15); max-width: 350px; }
         .toast-success { background: #059669; }
         .toast-error { background: #dc2626; }
         .toast-info { background: #2563eb; }
+        .toast-warning { background: #d97706; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .qr-frame { border: 3px solid #e2e8f0; border-radius: 1rem; padding: 1rem; background: white; display: inline-block; }
+        
+        .qr-frame { border: 2px solid #e2e8f0; border-radius: 1rem; padding: 1rem; background: white; display: inline-block; }
         .qr-frame canvas, .qr-frame img { display: block; width: 150px !important; height: 150px !important; }
+        
         .glass-effect { background: rgba(255,255,255,0.75); backdrop-filter: blur(16px); }
         .dark .glass-effect { background: rgba(15,23,42,0.8); }
-        #scanner-container video { border-radius: 1rem; max-width: 100%; width: 100%; }
+        
         html { scroll-behavior: smooth; }
+        
+        .skeleton { background: linear-gradient(90deg, var(--border) 25%, #f0f0f0 50%, var(--border) 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        
+        .sidebar {
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+        
         @media (max-width: 768px) {
             .card { padding: 1rem; }
-            th, td { padding: 0.5rem; font-size: 0.8rem; }
+            th, td { padding: 0.5rem; font-size: 0.75rem; }
+            .modal-content { padding: 1.5rem; margin: 0.5rem; }
+            .btn-primary, .btn-secondary, .btn-danger, .btn-success { padding: 0.5rem 0.75rem; font-size: 0.8rem; }
+        }
+        
+        @media print {
+            .no-print { display: none !important; }
+            .print-area { display: block !important; }
         }
     </style>
 </head>
-<body class="min-h-screen">
+<body>
 
     <!-- Firebase Init -->
     <script>
@@ -123,26 +318,29 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        db.enablePersistence().catch(() => {});
-        console.log('✅ Firebase Ready');
     </script>
 
-    <!-- LOGIN MODAL -->
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Login Modal -->
     <div id="loginModal" class="modal-overlay">
         <div class="modal-content">
             <div class="text-center mb-6">
-                <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-white text-xl font-bold">P</div>
-                <h3 class="text-xl font-bold">Login Paskibra Digital</h3>
-                <p class="text-sm text-gray-500">Masuk sesuai role Anda</p>
+                <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold shadow-lg">( ━ )</div>
+                <h3 class="text-xl font-bold">Brigpas Negast</h3>
+                <p class="text-sm text-gray-500 mt-1">Masuk untuk mengakses sistem</p>
             </div>
+            
             <div class="flex gap-2 mb-4">
-                <button onclick="setLoginRole('admin')" class="btn-secondary flex-1 justify-center py-2 text-sm active" id="btnRoleAdmin">
-                    <i data-lucide="shield" class="w-4 h-4"></i> Admin/Pembina
+                <button onclick="setLoginRole('admin')" id="btnRoleAdmin" class="btn-secondary flex-1 justify-center py-2 text-sm active" style="border-color:#2563EB;color:#2563EB;">
+                    <i data-lucide="shield" class="w-4 h-4"></i> Admin
                 </button>
-                <button onclick="setLoginRole('anggota')" class="btn-secondary flex-1 justify-center py-2 text-sm" id="btnRoleAnggota">
+                <button onclick="setLoginRole('anggota')" id="btnRoleAnggota" class="btn-secondary flex-1 justify-center py-2 text-sm">
                     <i data-lucide="user" class="w-4 h-4"></i> Anggota
                 </button>
             </div>
+            
             <form id="loginForm" class="space-y-4">
                 <div>
                     <label id="loginLabel">Username</label>
@@ -156,75 +354,146 @@
                     <i data-lucide="log-in" class="w-5 h-5"></i> Masuk
                 </button>
             </form>
-            <div id="loginError" class="hidden mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm"></div>
-            <p class="text-xs text-center text-gray-400 mt-4">Admin: Dewan / 2026/2027 • Anggota: A-001 / 123456</p>
+            <div id="loginError" class="hidden mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm border border-red-200"></div>
+            <div class="mt-4 text-center">
+                <p class="text-xs text-gray-400">Default password anggota: <strong>123456</strong> (segera ganti setelah login)</p>
+            </div>
         </div>
     </div>
 
-    <!-- MAIN APP -->
+    <!-- Main App -->
     <div id="mainApp" class="hidden min-h-screen flex flex-col lg:flex-row">
         
-        <!-- Sidebar -->
-        <aside class="hidden lg:flex flex-col w-72 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-screen sticky top-0 z-20">
-            <div class="p-6 border-b border-gray-100 dark:border-gray-800">
+        <!-- Sidebar (Desktop) -->
+        <aside class="hidden lg:flex flex-col w-72 sidebar h-screen sticky top-0 z-30">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold">P</div>
+                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow">( ━ )</div>
                     <div>
-                        <h2 class="font-semibold">Paskibra Digital</h2>
-                        <p class="text-xs text-gray-500" id="sidebarRole">Guest</p>
+                        <h2 class="font-semibold">Absensi Digital</h2>
+                        <p class="text-xs text-gray-500" id="sidebarRole">Guest Mode</p>
                     </div>
                 </div>
             </div>
-            <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto" id="sidebarNav">
+            
+            <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto scrollbar-thin" id="sidebarNav">
                 <button onclick="navigateTo('dashboard')" class="sidebar-link active" data-page="dashboard">
                     <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
                 </button>
-                <!-- Admin Menu -->
+                
                 <div id="menuAdmin" class="hidden space-y-1">
-                    <button onclick="navigateTo('akts')" class="sidebar-link" data-page="akts"><i data-lucide="folder-tree" class="w-5 h-5"></i> Akt</button>
-                    <button onclick="navigateTo('members')" class="sidebar-link" data-page="members"><i data-lucide="users" class="w-5 h-5"></i> Anggota</button>
-                    <button onclick="navigateTo('qr-generator')" class="sidebar-link" data-page="qr-generator"><i data-lucide="qr-code" class="w-5 h-5"></i> Generate QR</button>
-                    <button onclick="navigateTo('scan')" class="sidebar-link" data-page="scan"><i data-lucide="scan" class="w-5 h-5"></i> Scan Absensi</button>
-                    <button onclick="navigateTo('manual-absent')" class="sidebar-link" data-page="manual-absent"><i data-lucide="clipboard-edit" class="w-5 h-5"></i> Absensi Manual</button>
-                    <button onclick="navigateTo('attendance')" class="sidebar-link" data-page="attendance"><i data-lucide="history" class="w-5 h-5"></i> Riwayat</button>
-                    <button onclick="navigateTo('rekap')" class="sidebar-link" data-page="rekap"><i data-lucide="bar-chart-3" class="w-5 h-5"></i> Rekap</button>
-                    <button onclick="navigateTo('pengajuan')" class="sidebar-link" data-page="pengajuan"><i data-lucide="inbox" class="w-5 h-5"></i> Pengajuan Izin</button>
-                    <button onclick="navigateTo('export')" class="sidebar-link" data-page="export"><i data-lucide="download" class="w-5 h-5"></i> Export Rekap</button>
+                    <div class="pt-3 pb-1 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Manajemen</div>
+                    <button onclick="navigateTo('akts')" class="sidebar-link" data-page="akts">
+                        <i data-lucide="folder-tree" class="w-5 h-5"></i> Data Akt
+                    </button>
+                    <button onclick="navigateTo('members')" class="sidebar-link" data-page="members">
+                        <i data-lucide="users" class="w-5 h-5"></i> Data Anggota
+                    </button>
+                    <button onclick="navigateTo('qr-generator')" class="sidebar-link" data-page="qr-generator">
+                        <i data-lucide="qr-code" class="w-5 h-5"></i> Generate QR
+                    </button>
+                    
+                    <div class="pt-3 pb-1 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Absensi</div>
+                    <button onclick="navigateTo('scan')" class="sidebar-link" data-page="scan">
+                        <i data-lucide="scan" class="w-5 h-5"></i> Scan Absensi
+                    </button>
+                    <button onclick="navigateTo('manual-absent')" class="sidebar-link" data-page="manual-absent">
+                        <i data-lucide="clipboard-edit" class="w-5 h-5"></i> Absensi Manual
+                    </button>
+                    <button onclick="navigateTo('attendance')" class="sidebar-link" data-page="attendance">
+                        <i data-lucide="history" class="w-5 h-5"></i> Riwayat Absensi
+                    </button>
+                    <button onclick="navigateTo('rekap')" class="sidebar-link" data-page="rekap">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5"></i> Rekap
+                    </button>
+                    <button onclick="navigateTo('pengajuan')" class="sidebar-link" data-page="pengajuan">
+                        <i data-lucide="inbox" class="w-5 h-5"></i> Pengajuan Izin
+                    </button>
+                    <button onclick="navigateTo('export')" class="sidebar-link" data-page="export">
+                        <i data-lucide="download" class="w-5 h-5"></i> Export Rekap
+                    </button>
                 </div>
-                <!-- Anggota Menu -->
+                
                 <div id="menuAnggota" class="hidden space-y-1">
-                    <button onclick="navigateTo('profil-anggota')" class="sidebar-link" data-page="profil-anggota"><i data-lucide="user-circle" class="w-5 h-5"></i> Profil Saya</button>
-                    <button onclick="navigateTo('riwayat-anggota')" class="sidebar-link" data-page="riwayat-anggota"><i data-lucide="history" class="w-5 h-5"></i> Riwayat Saya</button>
-                    <button onclick="navigateTo('izin-anggota')" class="sidebar-link" data-page="izin-anggota"><i data-lucide="file-text" class="w-5 h-5"></i> Ajukan Izin</button>
+                    <button onclick="navigateTo('profil-anggota')" class="sidebar-link" data-page="profil-anggota">
+                        <i data-lucide="user-circle" class="w-5 h-5"></i> Profil Saya
+                    </button>
+                    <button onclick="navigateTo('riwayat-anggota')" class="sidebar-link" data-page="riwayat-anggota">
+                        <i data-lucide="history" class="w-5 h-5"></i> Riwayat Kehadiran
+                    </button>
+                    <button onclick="navigateTo('izin-anggota')" class="sidebar-link" data-page="izin-anggota">
+                        <i data-lucide="file-text" class="w-5 h-5"></i> Ajukan Izin
+                    </button>
+                    <button onclick="navigateTo('ubah-password')" class="sidebar-link" data-page="ubah-password">
+                        <i data-lucide="key" class="w-5 h-5"></i> Ubah Password
+                    </button>
                 </div>
             </nav>
-            <div class="p-4 border-t border-gray-100 dark:border-gray-800 space-y-2">
+            
+            <div class="p-4 border-t border-gray-200 dark:border-gray-800 space-y-2 flex-shrink-0">
                 <div id="sidebarGuest" class="space-y-2">
-                    <button onclick="showLoginModal()" class="btn-primary w-full justify-center text-sm py-2">Login</button>
+                    <button onclick="showLoginModal()" class="btn-primary w-full justify-center text-sm py-2.5">
+                        <i data-lucide="log-in" class="w-4 h-4"></i> Login
+                    </button>
                 </div>
                 <div id="sidebarUser" class="hidden space-y-2">
-                    <p class="text-sm font-medium" id="sidebarUsername">-</p>
-                    <button onclick="logout()" class="btn-secondary w-full text-red-500 text-sm py-2">Logout</button>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-semibold" id="sidebarAvatar">D</div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium truncate" id="sidebarUsername">-</p>
+                            <p class="text-xs text-gray-500" id="sidebarUserRole">-</p>
+                        </div>
+                    </div>
+                    <button onclick="logout()" class="btn-secondary w-full text-red-500 text-sm py-2">
+                        <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+                    </button>
                 </div>
-                <button onclick="toggleDarkMode()" class="btn-secondary w-full text-sm py-2"><i data-lucide="moon" class="w-4 h-4" id="darkIcon"></i> Dark</button>
+                <button onclick="toggleDarkMode()" class="btn-secondary w-full text-sm py-2">
+                    <i data-lucide="moon" class="w-4 h-4" id="darkIcon"></i> Dark Mode
+                </button>
             </div>
         </aside>
 
         <!-- Mobile Header -->
-        <header class="lg:hidden glass-effect sticky top-0 z-30 border-b px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-2"><div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">P</div><span class="font-semibold">Paskibra Digital</span></div>
+        <header class="lg:hidden glass-effect sticky top-0 z-40 border-b border-gray-200 px-4 py-3 flex items-center justify-between no-print">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">P</div>
+                <span class="font-semibold">Paskibra Digital</span>
+            </div>
             <div class="flex gap-2">
-                <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100"><i data-lucide="moon" class="w-5 h-5"></i></button>
-                <button onclick="toggleMobileMenu()" class="p-2 rounded-lg hover:bg-gray-100"><i data-lucide="menu" class="w-5 h-5"></i></button>
+                <button onclick="toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"><i data-lucide="moon" class="w-5 h-5"></i></button>
+                <button onclick="toggleMobileMenu()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"><i data-lucide="menu" class="w-5 h-5"></i></button>
             </div>
         </header>
 
         <!-- Mobile Menu -->
-        <div id="mobileMenu" class="lg:hidden fixed inset-0 z-40 hidden">
+        <div id="mobileMenu" class="lg:hidden fixed inset-0 z-50 hidden no-print">
             <div class="absolute inset-0 bg-black/40" onclick="toggleMobileMenu()"></div>
-            <div class="absolute left-0 top-0 bottom-0 w-72 bg-white dark:bg-gray-900 p-6 overflow-y-auto">
-                <div class="flex justify-between items-center mb-6"><h3 class="font-semibold">Menu</h3><button onclick="toggleMobileMenu()"><i data-lucide="x" class="w-6 h-6"></i></button></div>
+            <div class="absolute left-0 top-0 bottom-0 w-72 bg-white dark:bg-gray-900 p-6 overflow-y-auto shadow-xl">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-semibold text-lg">Menu</h3>
+                    <button onclick="toggleMobileMenu()" class="p-1 rounded-lg hover:bg-gray-100"><i data-lucide="x" class="w-6 h-6"></i></button>
+                </div>
                 <nav class="space-y-1" id="mobileNav"></nav>
+                <div class="mt-6 space-y-2">
+                    <div id="mobileGuest" class="space-y-2">
+                        <button onclick="showLoginModal(); toggleMobileMenu();" class="btn-primary w-full justify-center text-sm py-2.5">
+                            <i data-lucide="log-in" class="w-4 h-4"></i> Login
+                        </button>
+                    </div>
+                    <div id="mobileUser" class="hidden space-y-2">
+                        <div class="flex items-center gap-3 p-2">
+                            <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-semibold" id="mobileAvatar">D</div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium truncate" id="mobileUsername">-</p>
+                                <p class="text-xs text-gray-500" id="mobileUserRole">-</p>
+                            </div>
+                        </div>
+                        <button onclick="logout(); toggleMobileMenu();" class="btn-secondary w-full text-red-500 text-sm py-2">
+                            <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -232,115 +501,324 @@
         <main class="flex-1 bg-gray-50/50 dark:bg-gray-950 min-h-screen">
             <div class="p-4 lg:p-8 max-w-7xl mx-auto space-y-6">
                 
-                <!-- DASHBOARD -->
+                <!-- ========== DASHBOARD ========== -->
                 <div id="page-dashboard" class="page active">
-                    <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
                     <div id="dashboardContent"></div>
                 </div>
 
-                <!-- AKT -->
+                <!-- ========== AKT ========== -->
                 <div id="page-akts" class="page">
-                    <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Manajemen Akt</h2><button onclick="showAddAktModal()" class="btn-primary">+ Tambah</button></div>
-                    <div id="aktList" class="grid md:grid-cols-3 gap-4"></div>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 no-print">
+                        <div>
+                            <h2 class="text-2xl font-bold">Manajemen Akt</h2>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Kelola data angkatan/kelompok</p>
+                        </div>
+                        <button onclick="showAddAktModal()" class="btn-primary">
+                            <i data-lucide="plus" class="w-5 h-5"></i> Tambah Akt
+                        </button>
+                    </div>
+                    <div id="aktList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                 </div>
 
-                <!-- MEMBERS -->
+                <!-- ========== MEMBERS ========== -->
                 <div id="page-members" class="page">
-                    <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Anggota</h2><button onclick="showAddMemberModal()" class="btn-primary">+ Tambah</button></div>
-                    <div class="card p-0"><div class="table-container"><table><thead><tr><th>No</th><th>Nama</th><th>Akt</th><th>Username</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="membersTableBody"></tbody></table></div></div>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 no-print">
+                        <div>
+                            <h2 class="text-2xl font-bold">Data Anggota</h2>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Kelola data anggota Paskibra</p>
+                        </div>
+                        <button onclick="showAddMemberModal()" class="btn-primary">
+                            <i data-lucide="plus" class="w-5 h-5"></i> Tambah Anggota
+                        </button>
+                    </div>
+                    <div class="card p-0 overflow-hidden">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>No. Anggota</th>
+                                        <th>Nama Lengkap</th>
+                                        <th>Akt</th>
+                                        <th>JK</th>
+                                        <th>Jabatan</th>
+                                        <th>Status</th>
+                                        <th class="no-print">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="membersTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- QR GENERATOR -->
+                <!-- ========== QR GENERATOR ========== -->
                 <div id="page-qr-generator" class="page">
-                    <div class="flex justify-between mb-6"><h2 class="text-2xl font-bold">Generate QR</h2><button onclick="downloadAllQRCodes()" class="btn-secondary hidden" id="btnDownloadAll">Download ZIP</button></div>
-                    <div class="card mb-6 max-w-xl"><label>Pilih Akt</label><select id="selectAktQR" class="mb-4"></select><button onclick="generateQRCodes()" class="btn-primary w-full">Generate</button></div>
-                    <div id="qrResults" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 no-print">
+                        <div>
+                            <h2 class="text-2xl font-bold">Generate QR Code</h2>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Buat QR Code untuk absensi anggota</p>
+                        </div>
+                        <button onclick="downloadAllQRCodes()" class="btn-secondary hidden" id="btnDownloadAll">
+                            <i data-lucide="archive" class="w-5 h-5"></i> Download Semua (ZIP)
+                        </button>
+                    </div>
+                    
+                    <div class="card mb-6 max-w-xl no-print">
+                        <label class="mb-2">Pilih Akt</label>
+                        <select id="selectAktQR" class="mb-4">
+                            <option value="">-- Pilih Akt --</option>
+                        </select>
+                        <button onclick="generateQRCodes()" class="btn-primary w-full justify-center">
+                            <i data-lucide="qr-code" class="w-5 h-5"></i> Generate QR Codes
+                        </button>
+                    </div>
+                    
+                    <div id="qrResults" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
                 </div>
 
-                <!-- SCAN -->
+                <!-- ========== SCAN ========== -->
                 <div id="page-scan" class="page">
                     <h2 class="text-2xl font-bold mb-6">Scan Absensi</h2>
-                    <div class="card max-w-lg mx-auto"><div id="scannerContainer" class="rounded-xl bg-gray-900 mb-4" style="min-height:300px;"></div><div class="flex gap-2 justify-center"><button onclick="startScanner()" class="btn-primary" id="btnStartScan">Mulai Scan</button><button onclick="stopScanner()" class="btn-secondary hidden" id="btnStopScan">Stop</button></div></div>
-                    <div id="scanResult" class="hidden card max-w-lg mx-auto mt-4 text-center"><p class="text-green-600 font-bold">✅ Berhasil!</p><p id="scanDetail" class="text-gray-600"></p></div>
+                    <div class="card max-w-lg mx-auto">
+                        <div id="scannerContainer" class="rounded-xl overflow-hidden bg-gray-900 mb-4" style="min-height: 300px;"></div>
+                        <div class="flex gap-2 justify-center">
+                            <button onclick="startScanner()" class="btn-primary" id="btnStartScan">
+                                <i data-lucide="camera" class="w-5 h-5"></i> Mulai Scan
+                            </button>
+                            <button onclick="stopScanner()" class="btn-secondary hidden" id="btnStopScan">
+                                <i data-lucide="stop-circle" class="w-5 h-5"></i> Hentikan
+                            </button>
+                        </div>
+                        <p class="text-xs text-center text-gray-400 mt-3" id="scanStatus">Arahkan kamera ke QR Code anggota</p>
+                    </div>
+                    <div id="scanResult" class="hidden card max-w-lg mx-auto mt-4 text-center">
+                        <i data-lucide="check-circle" class="w-12 h-12 text-green-500 mx-auto mb-2"></i>
+                        <h3 class="font-bold text-lg">✅ Absensi Berhasil!</h3>
+                        <p id="scanDetail" class="text-gray-600 mt-2"></p>
+                    </div>
                 </div>
 
-                <!-- MANUAL ABSENT -->
+                <!-- ========== MANUAL ABSENT ========== -->
                 <div id="page-manual-absent" class="page">
                     <h2 class="text-2xl font-bold mb-6">Absensi Manual</h2>
-                    <div class="card max-w-xl space-y-4">
-                        <div><label>Akt</label><select id="manualAkt" onchange="loadMembersByAkt()"></select></div>
-                        <div><label>Anggota</label><select id="manualMember"></select></div>
-                        <div><label>Status</label><select id="manualStatus"><option value="hadir">Hadir</option><option value="izin">Izin</option><option value="sakit">Sakit</option><option value="alpha">Alpha</option></select></div>
-                        <div><label>Keterangan</label><textarea id="manualKeterangan" rows="2"></textarea></div>
-                        <button onclick="submitManualAbsent()" class="btn-primary w-full">Simpan</button>
+                    <div class="card max-w-xl">
+                        <div class="space-y-4">
+                            <div>
+                                <label>Pilih Akt</label>
+                                <select id="manualAkt" onchange="loadMembersByAkt()">
+                                    <option value="">-- Pilih Akt --</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Pilih Anggota</label>
+                                <select id="manualMember">
+                                    <option value="">-- Pilih Anggota --</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Status</label>
+                                <select id="manualStatus">
+                                    <option value="hadir">Hadir</option>
+                                    <option value="izin">Izin</option>
+                                    <option value="sakit">Sakit</option>
+                                    <option value="alpha">Alpha</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Keterangan</label>
+                                <textarea id="manualKeterangan" rows="2" placeholder="Opsional..."></textarea>
+                            </div>
+                            <button onclick="submitManualAbsent()" class="btn-primary w-full justify-center">
+                                <i data-lucide="save" class="w-5 h-5"></i> Simpan Absensi
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- RIWAYAT -->
+                <!-- ========== ATTENDANCE HISTORY ========== -->
                 <div id="page-attendance" class="page">
                     <h2 class="text-2xl font-bold mb-6">Riwayat Absensi</h2>
-                    <div class="card p-0"><table><thead><tr><th>Tanggal</th><th>Nama</th><th>Akt</th><th>Jam</th><th>Status</th></tr></thead><tbody id="attendanceTableBody"></tbody></table></div>
-                </div>
-
-                <!-- REKAP -->
-                <div id="page-rekap" class="page">
-                    <h2 class="text-2xl font-bold mb-6">Rekap</h2>
-                    <div class="grid grid-cols-4 gap-4 mb-6">
-                        <div class="card text-center"><p class="text-sm">Hadir</p><p class="text-3xl font-bold text-green-600" id="rekapHadir">0</p></div>
-                        <div class="card text-center"><p class="text-sm">Izin</p><p class="text-3xl font-bold text-yellow-600" id="rekapIzin">0</p></div>
-                        <div class="card text-center"><p class="text-sm">Sakit</p><p class="text-3xl font-bold text-purple-600" id="rekapSakit">0</p></div>
-                        <div class="card text-center"><p class="text-sm">Alpha</p><p class="text-3xl font-bold text-red-600" id="rekapAlpha">0</p></div>
+                    <div class="card p-0 overflow-hidden">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Nama</th>
+                                        <th>Akt</th>
+                                        <th>Jam</th>
+                                        <th>Status</th>
+                                        <th>Metode</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendanceTableBody"></tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="card"><h3>Persentase Bulan Ini</h3><div class="flex items-center gap-4"><span class="text-3xl font-bold text-blue-600" id="rekapPersentase">0%</span><div class="flex-1 h-4 bg-gray-200 rounded-full"><div class="h-full bg-blue-600 rounded-full" id="rekapProgressBar" style="width:0%"></div></div></div></div>
                 </div>
 
-                <!-- PENGAJUAN -->
+                <!-- ========== REKAP ========== -->
+                <div id="page-rekap" class="page">
+                    <h2 class="text-2xl font-bold mb-6">Rekap Absensi</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="card text-center">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Hadir</p>
+                            <p class="text-3xl font-bold text-green-600" id="rekapHadir">0</p>
+                        </div>
+                        <div class="card text-center">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Izin</p>
+                            <p class="text-3xl font-bold text-yellow-600" id="rekapIzin">0</p>
+                        </div>
+                        <div class="card text-center">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Sakit</p>
+                            <p class="text-3xl font-bold text-purple-600" id="rekapSakit">0</p>
+                        </div>
+                        <div class="card text-center">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Alpha</p>
+                            <p class="text-3xl font-bold text-red-600" id="rekapAlpha">0</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="font-semibold mb-4">Persentase Kehadiran Bulan Ini</h3>
+                        <div class="flex items-center gap-4">
+                            <span class="text-3xl font-bold text-blue-600" id="rekapPersentase">0%</span>
+                            <div class="flex-1 h-4 bg-gray-200 rounded-full overflow-hidden dark:bg-gray-700">
+                                <div class="h-full bg-blue-600 rounded-full transition-all duration-500" id="rekapProgressBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <canvas id="rekapChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========== PENGAJUAN ========== -->
                 <div id="page-pengajuan" class="page">
                     <h2 class="text-2xl font-bold mb-6">Pengajuan Izin</h2>
                     <div id="pengajuanList" class="space-y-3"></div>
                 </div>
 
-                <!-- EXPORT -->
+                <!-- ========== EXPORT ========== -->
                 <div id="page-export" class="page">
                     <h2 class="text-2xl font-bold mb-6">Export Rekap Absensi</h2>
-                    <div class="card max-w-xl space-y-4 mb-6">
-                        <div><label>Periode</label><select id="exportPeriode" onchange="updateExportRange()"><option value="mingguan">Mingguan</option><option value="bulanan">Bulanan</option><option value="custom">Custom Date</option></select></div>
+                    
+                    <div class="card max-w-xl space-y-4 mb-6 no-print">
+                        <div>
+                            <label>Periode</label>
+                            <select id="exportPeriode" onchange="updateExportRange()">
+                                <option value="mingguan">Mingguan</option>
+                                <option value="bulanan">Bulanan</option>
+                                <option value="custom">Custom Date</option>
+                            </select>
+                        </div>
                         <div id="exportCustomRange" class="hidden grid grid-cols-2 gap-3">
                             <div><label>Dari</label><input type="date" id="exportStartDate"></div>
                             <div><label>Sampai</label><input type="date" id="exportEndDate"></div>
                         </div>
-                        <div><label>Filter Status</label><select id="exportStatus"><option value="semua">Semua</option><option value="hadir">Hadir</option><option value="izin">Izin</option><option value="sakit">Sakit</option><option value="alpha">Alpha</option></select></div>
-                        <div><label>Pilih Akt (opsional)</label><select id="exportAkt"><option value="">Semua Akt</option></select></div>
+                        <div>
+                            <label>Filter Status</label>
+                            <select id="exportStatus">
+                                <option value="semua">Semua Status</option>
+                                <option value="hadir">Hadir</option>
+                                <option value="izin">Izin</option>
+                                <option value="sakit">Sakit</option>
+                                <option value="alpha">Alpha</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Pilih Akt (opsional)</label>
+                            <select id="exportAkt">
+                                <option value="">Semua Akt</option>
+                            </select>
+                        </div>
                         <button onclick="updateExportPreview()" class="btn-secondary w-full">Lihat Preview</button>
                     </div>
-                    <div class="flex gap-2 flex-wrap mb-6">
-                        <button onclick="exportToPDF()" class="btn-primary"><i data-lucide="file-text" class="w-5 h-5"></i> PDF</button>
-                        <button onclick="exportToExcel()" class="btn-primary" style="background:#059669;"><i data-lucide="file-spreadsheet" class="w-5 h-5"></i> Excel</button>
-                        <button onclick="exportToCSV()" class="btn-primary" style="background:#6B7280;"><i data-lucide="download" class="w-5 h-5"></i> CSV</button>
+                    
+                    <div class="flex gap-2 flex-wrap mb-6 no-print">
+                        <button onclick="exportToPDF()" class="btn-primary">
+                            <i data-lucide="file-text" class="w-5 h-5"></i> PDF
+                        </button>
+                        <button onclick="exportToExcel()" class="btn-primary" style="background:#059669;">
+                            <i data-lucide="file-spreadsheet" class="w-5 h-5"></i> Excel
+                        </button>
+                        <button onclick="exportToCSV()" class="btn-primary" style="background:#6B7280;">
+                            <i data-lucide="download" class="w-5 h-5"></i> CSV
+                        </button>
                     </div>
-                    <div class="card"><h3 class="font-semibold mb-4">Preview Data</h3><div id="exportPreview" class="table-container"></div></div>
+                    
+                    <div class="card">
+                        <h3 class="font-semibold mb-4">Preview Data</h3>
+                        <div id="exportPreview" class="table-container"></div>
+                    </div>
                 </div>
 
-                <!-- PROFIL ANGGOTA -->
+                <!-- ========== PROFIL ANGGOTA ========== -->
                 <div id="page-profil-anggota" class="page">
                     <h2 class="text-2xl font-bold mb-6">Profil Saya</h2>
                     <div class="card max-w-lg" id="profilAnggotaContent"></div>
                 </div>
 
-                <!-- RIWAYAT ANGGOTA -->
+                <!-- ========== RIWAYAT ANGGOTA ========== -->
                 <div id="page-riwayat-anggota" class="page">
                     <h2 class="text-2xl font-bold mb-6">Riwayat Kehadiran Saya</h2>
-                    <div class="card p-0"><table><thead><tr><th>Tanggal</th><th>Jam</th><th>Status</th></tr></thead><tbody id="riwayatAnggotaTable"></tbody></table></div>
+                    <div class="card p-0 overflow-hidden">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr><th>Tanggal</th><th>Jam</th><th>Status</th><th>Keterangan</th></tr>
+                                </thead>
+                                <tbody id="riwayatAnggotaTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- IZIN ANGGOTA -->
+                <!-- ========== IZIN ANGGOTA ========== -->
                 <div id="page-izin-anggota" class="page">
                     <h2 class="text-2xl font-bold mb-6">Ajukan Izin</h2>
                     <div class="card max-w-lg space-y-4">
-                        <div><label>Tanggal</label><input type="date" id="izinTanggal"></div>
-                        <div><label>Jenis</label><select id="izinJenis"><option value="izin">Izin</option><option value="sakit">Sakit</option></select></div>
-                        <div><label>Alasan</label><textarea id="izinAlasan" rows="3"></textarea></div>
-                        <button onclick="submitIzin()" class="btn-primary w-full">Kirim Pengajuan</button>
+                        <div>
+                            <label>Tanggal</label>
+                            <input type="date" id="izinTanggal" min="">
+                        </div>
+                        <div>
+                            <label>Jenis</label>
+                            <select id="izinJenis">
+                                <option value="izin">Izin</option>
+                                <option value="sakit">Sakit</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Alasan</label>
+                            <textarea id="izinAlasan" rows="3" placeholder="Tulis alasan..."></textarea>
+                        </div>
+                        <button onclick="submitIzin()" class="btn-primary w-full justify-center">
+                            <i data-lucide="send" class="w-5 h-5"></i> Kirim Pengajuan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ========== UBAH PASSWORD (ANGGOTA) ========== -->
+                <div id="page-ubah-password" class="page">
+                    <h2 class="text-2xl font-bold mb-6">Ubah Password</h2>
+                    <div class="card max-w-md">
+                        <div class="space-y-4">
+                            <div>
+                                <label>Password Lama</label>
+                                <input type="password" id="oldPassword" placeholder="Masukkan password lama" required>
+                            </div>
+                            <div>
+                                <label>Password Baru</label>
+                                <input type="password" id="newPassword" placeholder="Masukkan password baru (min. 6 karakter)" minlength="6" required>
+                            </div>
+                            <div>
+                                <label>Konfirmasi Password Baru</label>
+                                <input type="password" id="confirmPassword" placeholder="Ulangi password baru" required>
+                            </div>
+                            <button onclick="changePassword()" class="btn-primary w-full justify-center">
+                                <i data-lucide="key" class="w-5 h-5"></i> Simpan Password Baru
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -348,66 +826,119 @@
         </main>
     </div>
 
-    <!-- MODALS -->
-    <div id="aktModal" class="modal-overlay"><div class="modal-content"><h3 class="text-xl font-bold mb-4" id="aktModalTitle">Tambah Akt</h3><input type="hidden" id="aktId"><input id="aktName" placeholder="Nama Akt" class="mb-3"><input type="number" id="aktYear" placeholder="Tahun" class="mb-3"><textarea id="aktDescription" placeholder="Keterangan" class="mb-3"></textarea><div class="flex gap-2"><button onclick="saveAkt()" class="btn-primary flex-1">Simpan</button><button onclick="closeModal('aktModal')" class="btn-secondary flex-1">Batal</button></div></div></div>
-    
-    <div id="memberModal" class="modal-overlay"><div class="modal-content"><h3 class="text-xl font-bold mb-4" id="memberModalTitle">Tambah Anggota</h3><input type="hidden" id="memberId"><input id="memberName" placeholder="Nama Lengkap" class="mb-3"><select id="memberAkt" class="mb-3"></select><select id="memberGender" class="mb-3"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select><input id="memberPhone" placeholder="No HP" class="mb-3"><input id="memberJabatan" placeholder="Jabatan" class="mb-3"><div class="flex gap-2"><button onclick="saveMember()" class="btn-primary flex-1">Simpan</button><button onclick="closeModal('memberModal')" class="btn-secondary flex-1">Batal</button></div></div></div>
+    <!-- Modals -->
+    <div id="aktModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold" id="aktModalTitle">Tambah Akt</h3>
+                <button onclick="closeModal('aktModal')" class="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <input type="hidden" id="aktId">
+            <div class="space-y-4">
+                <div><label>Nama Akt *</label><input type="text" id="aktName" placeholder="Contoh: Akt I"></div>
+                <div><label>Tahun *</label><input type="number" id="aktYear" placeholder="2024" min="2000" max="2100"></div>
+                <div><label>Keterangan</label><textarea id="aktDescription" rows="2" placeholder="Opsional..."></textarea></div>
+                <button onclick="saveAkt()" class="btn-primary w-full justify-center">Simpan</button>
+            </div>
+        </div>
+    </div>
 
-    <div class="toast-container" id="toastContainer"></div>
+    <div id="memberModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold" id="memberModalTitle">Tambah Anggota</h3>
+                <button onclick="closeModal('memberModal')" class="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <input type="hidden" id="memberId">
+            <div class="space-y-4">
+                <div><label>Nama Lengkap *</label><input type="text" id="memberName" placeholder="Nama lengkap anggota"></div>
+                <div><label>Akt *</label><select id="memberAkt"></select></div>
+                <div><label>Jenis Kelamin</label><select id="memberGender"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
+                <div><label>No HP</label><input type="text" id="memberPhone" placeholder="08xxxxxxxxxx"></div>
+                <div><label>Jabatan</label><input type="text" id="memberJabatan" placeholder="Contoh: Anggota Aktif"></div>
+                <button onclick="saveMember()" class="btn-primary w-full justify-center">Simpan</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // ==================== STATE ====================
         let currentUser = null;
         let html5QrScanner = null;
         let isDarkMode = false;
-        let currentAktId = null;
         let generatedQRData = [];
         let loginRole = 'admin';
+        let rekapChartInstance = null;
 
-        const ADMIN_ACCOUNTS = [
-            { username: 'Dewan', password: '2026/2027', role: 'admin', nama: 'Dewan (Ketua)' },
-            { username: 'pembina', password: '2026/2027', role: 'superadmin', nama: 'Pembina' }
-        ];
+        // Hanya admin Dewan, tanpa role superadmin/pembina
+        const ADMIN_ACCOUNT = { username: 'Dewan', password: '2026/2027', role: 'admin', nama: 'Dewan (Ketua)' };
 
         // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', () => {
             const saved = localStorage.getItem('paskibra_user');
             if (saved) {
-                currentUser = JSON.parse(saved);
-                if (currentUser.role === 'anggota') {
-                    db.collection('members').doc(currentUser.memberId).get().then(doc => {
-                        if (!doc.exists) { logout(); }
-                    });
+                try {
+                    currentUser = JSON.parse(saved);
+                } catch(e) {
+                    currentUser = null;
+                    localStorage.removeItem('paskibra_user');
                 }
             }
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('izinTanggal').min = today;
+            document.getElementById('izinTanggal').value = today;
+            
+            const now = new Date();
+            document.getElementById('exportStartDate').value = new Date(now.getFullYear(), now.getMonth(), now.getDate()-7).toISOString().split('T')[0];
+            document.getElementById('exportEndDate').value = now.toISOString().split('T')[0];
+            
             document.getElementById('mainApp').classList.remove('hidden');
             updateUI();
             navigateTo('dashboard');
-            updateCurrentDate();
             lucide.createIcons();
-            if (localStorage.getItem('darkMode') === '1') { isDarkMode = true; document.documentElement.classList.add('dark'); }
-            updateDarkModeIcons();
+            
+            if (localStorage.getItem('darkMode') === '1') {
+                isDarkMode = true;
+                document.documentElement.classList.add('dark');
+                const icon = document.getElementById('darkIcon');
+                if (icon) icon.setAttribute('data-lucide', 'sun');
+            }
+            
+            lucide.createIcons();
         });
-
-        function updateCurrentDate() {
-            const now = new Date();
-            document.getElementById('currentDate').textContent = now.toLocaleDateString('id-ID', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-        }
 
         // ==================== UI UPDATE ====================
         function updateUI() {
-            const isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.role === 'superadmin');
+            const isAdmin = currentUser && currentUser.role === 'admin';
             const isAnggota = currentUser && currentUser.role === 'anggota';
+            
             document.getElementById('menuAdmin').classList.toggle('hidden', !isAdmin);
             document.getElementById('menuAnggota').classList.toggle('hidden', !isAnggota);
             document.getElementById('sidebarGuest').classList.toggle('hidden', !!currentUser);
             document.getElementById('sidebarUser').classList.toggle('hidden', !currentUser);
+            
+            const mobileGuest = document.getElementById('mobileGuest');
+            const mobileUser = document.getElementById('mobileUser');
+            if (mobileGuest) mobileGuest.classList.toggle('hidden', !!currentUser);
+            if (mobileUser) mobileUser.classList.toggle('hidden', !currentUser);
+            
             if (currentUser) {
-                document.getElementById('sidebarUsername').textContent = currentUser.nama || currentUser.username;
-                document.getElementById('sidebarRole').textContent = currentUser.role === 'superadmin' ? 'Pembina' : currentUser.role === 'admin' ? 'Admin' : 'Anggota';
+                const displayName = currentUser.nama || currentUser.username || 'User';
+                const roleText = currentUser.role === 'admin' ? 'Admin' : 'Anggota';
+                
+                document.getElementById('sidebarUsername').textContent = displayName;
+                document.getElementById('sidebarUserRole').textContent = roleText;
+                document.getElementById('sidebarAvatar').textContent = displayName.charAt(0).toUpperCase();
+                document.getElementById('sidebarRole').textContent = roleText;
+                
+                document.getElementById('mobileUsername').textContent = displayName;
+                document.getElementById('mobileUserRole').textContent = roleText;
+                document.getElementById('mobileAvatar').textContent = displayName.charAt(0).toUpperCase();
             } else {
-                document.getElementById('sidebarRole').textContent = 'Guest';
+                document.getElementById('sidebarRole').textContent = 'Guest Mode';
             }
+            
             buildMobileMenu();
             lucide.createIcons();
         }
@@ -415,82 +946,156 @@
         function buildMobileMenu() {
             const nav = document.getElementById('mobileNav');
             let items = [{ id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' }];
-            if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'superadmin')) {
+            
+            if (currentUser && currentUser.role === 'admin') {
                 items.push(
-                    { id: 'akts', label: 'Akt', icon: 'folder-tree' },
-                    { id: 'members', label: 'Anggota', icon: 'users' },
+                    { id: 'akts', label: 'Data Akt', icon: 'folder-tree' },
+                    { id: 'members', label: 'Data Anggota', icon: 'users' },
                     { id: 'qr-generator', label: 'Generate QR', icon: 'qr-code' },
-                    { id: 'scan', label: 'Scan', icon: 'scan' },
+                    { id: 'scan', label: 'Scan Absensi', icon: 'scan' },
                     { id: 'manual-absent', label: 'Absensi Manual', icon: 'clipboard-edit' },
-                    { id: 'attendance', label: 'Riwayat', icon: 'history' },
+                    { id: 'attendance', label: 'Riwayat Absensi', icon: 'history' },
                     { id: 'rekap', label: 'Rekap', icon: 'bar-chart-3' },
-                    { id: 'pengajuan', label: 'Pengajuan', icon: 'inbox' },
-                    { id: 'export', label: 'Export', icon: 'download' }
+                    { id: 'pengajuan', label: 'Pengajuan Izin', icon: 'inbox' },
+                    { id: 'export', label: 'Export Rekap', icon: 'download' }
                 );
             } else if (currentUser && currentUser.role === 'anggota') {
                 items.push(
-                    { id: 'profil-anggota', label: 'Profil', icon: 'user' },
-                    { id: 'riwayat-anggota', label: 'Riwayat', icon: 'history' },
-                    { id: 'izin-anggota', label: 'Ajukan Izin', icon: 'file-text' }
+                    { id: 'profil-anggota', label: 'Profil Saya', icon: 'user-circle' },
+                    { id: 'riwayat-anggota', label: 'Riwayat Kehadiran', icon: 'history' },
+                    { id: 'izin-anggota', label: 'Ajukan Izin', icon: 'file-text' },
+                    { id: 'ubah-password', label: 'Ubah Password', icon: 'key' }
                 );
             }
-            nav.innerHTML = items.map(i => `<button onclick="navigateTo('${i.id}'); toggleMobileMenu();" class="sidebar-link w-full" data-page="${i.id}"><i data-lucide="${i.icon}" class="w-5 h-5"></i> ${i.label}</button>`).join('');
+            
+            nav.innerHTML = items.map(i => `
+                <button onclick="navigateTo('${i.id}'); toggleMobileMenu();" class="sidebar-link w-full" data-page="${i.id}">
+                    <i data-lucide="${i.icon}" class="w-5 h-5"></i> ${i.label}
+                </button>
+            `).join('');
             lucide.createIcons();
         }
 
         // ==================== LOGIN ====================
         function setLoginRole(role) {
             loginRole = role;
-            document.getElementById('btnRoleAdmin').classList.toggle('active', role === 'admin');
-            document.getElementById('btnRoleAnggota').classList.toggle('active', role === 'anggota');
+            const btnAdmin = document.getElementById('btnRoleAdmin');
+            const btnAnggota = document.getElementById('btnRoleAnggota');
+            
+            if (role === 'admin') {
+                btnAdmin.style.borderColor = '#2563EB';
+                btnAdmin.style.color = '#2563EB';
+                btnAnggota.style.borderColor = '';
+                btnAnggota.style.color = '';
+            } else {
+                btnAnggota.style.borderColor = '#2563EB';
+                btnAnggota.style.color = '#2563EB';
+                btnAdmin.style.borderColor = '';
+                btnAdmin.style.color = '';
+            }
+            
             document.getElementById('loginLabel').textContent = role === 'admin' ? 'Username' : 'Nomor Anggota';
             document.getElementById('loginUsername').placeholder = role === 'admin' ? 'Username admin' : 'Contoh: A-001';
+            document.getElementById('loginError').classList.add('hidden');
         }
 
-        function showLoginModal() { document.getElementById('loginModal').classList.add('active'); }
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.add('active');
+            document.getElementById('loginError').classList.add('hidden');
+            document.getElementById('loginForm').reset();
+            setLoginRole('admin');
+            lucide.createIcons();
+        }
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
             const errorDiv = document.getElementById('loginError');
+            errorDiv.classList.add('hidden');
+            
             if (loginRole === 'admin') {
-                const found = ADMIN_ACCOUNTS.find(a => a.username === username && a.password === password);
-                if (found) {
-                    currentUser = { username: found.username, role: found.role, nama: found.nama };
+                if (username === ADMIN_ACCOUNT.username && password === ADMIN_ACCOUNT.password) {
+                    currentUser = { username: ADMIN_ACCOUNT.username, role: 'admin', nama: ADMIN_ACCOUNT.nama };
                     localStorage.setItem('paskibra_user', JSON.stringify(currentUser));
                     updateUI();
                     closeModal('loginModal');
-                    showToast(`✅ Selamat datang, ${found.nama}!`, 'success');
+                    showToast('✅ Login berhasil! Selamat datang ' + ADMIN_ACCOUNT.nama, 'success');
                     navigateTo('dashboard');
                 } else {
                     errorDiv.textContent = '❌ Username atau password salah!';
                     errorDiv.classList.remove('hidden');
-                    setTimeout(() => errorDiv.classList.add('hidden'), 3000);
                 }
             } else {
+                // ANGGOTA LOGIN
                 try {
-                    const snap = await db.collection('members')
-                        .where('nomorAnggota', '==', username)
-                        .where('password', '==', password)
-                        .get();
-                    if (!snap.empty) {
-                        const doc = snap.docs[0];
-                        const member = doc.data();
-                        currentUser = { username: member.nomorAnggota, role: 'anggota', nama: member.namaLengkap, memberId: doc.id };
+                    let memberDoc = null;
+                    let memberData = null;
+                    
+                    // Approach 1: Query by nomorAnggota AND password
+                    try {
+                        const snap = await db.collection('members')
+                            .where('nomorAnggota', '==', username)
+                            .where('password', '==', password)
+                            .get();
+                        if (!snap.empty) {
+                            memberDoc = snap.docs[0];
+                            memberData = memberDoc.data();
+                        }
+                    } catch(e) {}
+                    
+                    // Approach 2: Query by nomorAnggota only
+                    if (!memberDoc) {
+                        try {
+                            const snap2 = await db.collection('members')
+                                .where('nomorAnggota', '==', username)
+                                .get();
+                            if (!snap2.empty) {
+                                const doc2 = snap2.docs[0];
+                                const data2 = doc2.data();
+                                if (data2.password === password || (password === '123456' && (!data2.password || data2.password === '123456'))) {
+                                    memberDoc = doc2;
+                                    memberData = data2;
+                                }
+                            }
+                        } catch(e) {}
+                    }
+                    
+                    // Approach 3: Get all members and find manually
+                    if (!memberDoc) {
+                        try {
+                            const allMembers = await db.collection('members').get();
+                            allMembers.forEach(doc => {
+                                const data = doc.data();
+                                if (data.nomorAnggota === username || data.namaLengkap === username) {
+                                    if (data.password === password || (password === '123456' && (!data.password || data.password === '123456'))) {
+                                        memberDoc = doc;
+                                        memberData = data;
+                                    }
+                                }
+                            });
+                        } catch(e) {}
+                    }
+                    
+                    if (memberDoc && memberData) {
+                        currentUser = { 
+                            username: memberData.nomorAnggota || username, 
+                            role: 'anggota', 
+                            nama: memberData.namaLengkap, 
+                            memberId: memberDoc.id 
+                        };
                         localStorage.setItem('paskibra_user', JSON.stringify(currentUser));
                         updateUI();
                         closeModal('loginModal');
-                        showToast(`✅ Selamat datang, ${member.namaLengkap}!`, 'success');
+                        showToast('✅ Login berhasil! Selamat datang ' + memberData.namaLengkap, 'success');
                         navigateTo('dashboard');
                     } else {
-                        errorDiv.textContent = '❌ Nomor anggota atau password salah!';
+                        errorDiv.textContent = '❌ Nomor anggota tidak ditemukan atau password salah!';
                         errorDiv.classList.remove('hidden');
-                        setTimeout(() => errorDiv.classList.add('hidden'), 3000);
                     }
                 } catch (error) {
-                    console.error('Login anggota error:', error);
-                    errorDiv.textContent = '❌ Gagal login. Coba lagi.';
+                    console.error('Login error:', error);
+                    errorDiv.textContent = '❌ Gagal login. Error: ' + error.message;
                     errorDiv.classList.remove('hidden');
                 }
             }
@@ -503,26 +1108,35 @@
             if (html5QrScanner) stopScanner();
             showToast('👋 Anda telah logout.', 'info');
             navigateTo('dashboard');
+            lucide.createIcons();
         }
 
         // ==================== NAVIGATION ====================
         function navigateTo(page) {
             const adminPages = ['akts','members','qr-generator','scan','manual-absent','attendance','rekap','pengajuan','export'];
-            const anggotaPages = ['profil-anggota','riwayat-anggota','izin-anggota'];
-            if (adminPages.includes(page) && (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'superadmin'))) {
-                showToast('🔒 Login sebagai admin diperlukan', 'error');
+            const anggotaPages = ['profil-anggota','riwayat-anggota','izin-anggota','ubah-password'];
+            
+            if (adminPages.includes(page) && (!currentUser || currentUser.role !== 'admin')) {
+                showToast('🔒 Login sebagai admin diperlukan', 'warning');
                 showLoginModal();
                 return;
             }
+            
             if (anggotaPages.includes(page) && (!currentUser || currentUser.role !== 'anggota')) {
-                showToast('🔒 Login sebagai anggota diperlukan', 'error');
+                showToast('🔒 Login sebagai anggota diperlukan', 'warning');
                 showLoginModal();
                 return;
             }
+            
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const target = document.getElementById(`page-${page}`);
             if (target) target.classList.add('active');
-            document.querySelectorAll('#sidebarNav .sidebar-link').forEach(l => { l.classList.remove('active'); if (l.getAttribute('data-page') === page) l.classList.add('active'); });
+            
+            document.querySelectorAll('.sidebar-link').forEach(l => {
+                l.classList.remove('active');
+                if (l.getAttribute('data-page') === page) l.classList.add('active');
+            });
+            
             const loaders = {
                 'dashboard': loadDashboard,
                 'akts': loadAkts,
@@ -536,8 +1150,10 @@
                 'export': loadExportData,
                 'profil-anggota': loadProfilAnggota,
                 'riwayat-anggota': loadRiwayatAnggota,
-                'izin-anggota': () => {}
+                'izin-anggota': () => {},
+                'ubah-password': () => {}
             };
+            
             if (loaders[page]) loaders[page]();
             if (page !== 'scan' && html5QrScanner) stopScanner();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -547,16 +1163,43 @@
         // ==================== DASHBOARD ====================
         async function loadDashboard() {
             const container = document.getElementById('dashboardContent');
+            
             if (currentUser && currentUser.role === 'anggota') {
                 try {
                     const memberDoc = await db.collection('members').doc(currentUser.memberId).get();
+                    if (!memberDoc.exists) {
+                        container.innerHTML = '<p class="text-gray-500">Data anggota tidak ditemukan.</p>';
+                        return;
+                    }
                     const member = memberDoc.data();
                     const attSnap = await db.collection('attendances').where('memberId', '==', currentUser.memberId).get();
                     let hadir=0, izin=0, sakit=0, alpha=0;
-                    attSnap.forEach(doc => { const d=doc.data(); if(d.status==='hadir') hadir++; else if(d.status==='izin') izin++; else if(d.status==='sakit') sakit++; else if(d.status==='alpha') alpha++; });
+                    attSnap.forEach(doc => { 
+                        const d=doc.data(); 
+                        if(d.status==='hadir') hadir++; 
+                        else if(d.status==='izin') izin++; 
+                        else if(d.status==='sakit') sakit++; 
+                        else if(d.status==='alpha') alpha++; 
+                    });
                     const total=hadir+izin+sakit+alpha;
                     const persentase=total>0?((hadir/total)*100).toFixed(1):0;
+                    
                     container.innerHTML = `
+                        <h1 class="text-2xl font-bold mb-6">Dashboard Anggota</h1>
+                        <div class="card mb-6 p-0 overflow-hidden">
+                            <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-white">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl font-bold">
+                                        ${member.namaLengkap ? member.namaLengkap.charAt(0) : 'A'}
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-lg">${member.namaLengkap}</h3>
+                                        <p class="text-sm opacity-90">${member.nomorAnggota} • ${member.aktNama}</p>
+                                        <p class="text-xs opacity-80">${member.jabatan || 'Anggota'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                             <div class="card text-center"><p class="text-sm text-gray-500">Hadir</p><p class="text-2xl font-bold text-green-600">${hadir}</p></div>
                             <div class="card text-center"><p class="text-sm text-gray-500">Izin</p><p class="text-2xl font-bold text-yellow-600">${izin}</p></div>
@@ -565,28 +1208,139 @@
                         </div>
                         <div class="card">
                             <h3 class="font-semibold mb-2">Persentase Kehadiran</h3>
-                            <div class="flex items-center gap-4"><span class="text-3xl font-bold text-blue-600">${persentase}%</span><div class="flex-1 h-4 bg-gray-200 rounded-full"><div class="h-full bg-blue-600 rounded-full" style="width:${persentase}%"></div></div></div>
+                            <div class="flex items-center gap-4">
+                                <span class="text-3xl font-bold text-blue-600">${persentase}%</span>
+                                <div class="flex-1 h-4 bg-gray-200 rounded-full overflow-hidden dark:bg-gray-700">
+                                    <div class="h-full bg-blue-600 rounded-full transition-all duration-1000" style="width:${persentase}%"></div>
+                                </div>
+                            </div>
+                            <button onclick="navigateTo('riwayat-anggota')" class="btn-secondary mt-4 w-full justify-center">
+                                <i data-lucide="history" class="w-4 h-4"></i> Lihat Riwayat Lengkap
+                            </button>
                         </div>`;
-                } catch(e){ console.error(e); }
+                } catch(e) { 
+                    console.error(e);
+                    container.innerHTML = '<p class="text-gray-500">Gagal memuat data.</p>';
+                }
             } else {
+                // Admin Dashboard - lebih berisi
                 const today = new Date().toISOString().split('T')[0];
                 try {
-                    const membersSnap = await db.collection('members').get();
-                    const attSnap = await db.collection('attendances').where('tanggal','==',today).get();
-                    let hadir=0, izin=0, sakit=0, alpha=0;
-                    attSnap.forEach(doc => { const d=doc.data(); if(d.status==='hadir') hadir++; else if(d.status==='izin') izin++; else if(d.status==='sakit') sakit++; else if(d.status==='alpha') alpha++; });
+                    const [membersSnap, attTodaySnap, aktsSnap, pengajuanSnap] = await Promise.all([
+                        db.collection('members').get(),
+                        db.collection('attendances').where('tanggal','==',today).get(),
+                        db.collection('akts').get(),
+                        db.collection('pengajuan_izin').where('status','==','pending').get()
+                    ]);
+                    
+                    let hadirToday=0, izinToday=0, sakitToday=0, alphaToday=0;
+                    attTodaySnap.forEach(doc => {
+                        const d = doc.data();
+                        if(d.status==='hadir') hadirToday++;
+                        else if(d.status==='izin') izinToday++;
+                        else if(d.status==='sakit') sakitToday++;
+                        else if(d.status==='alpha') alphaToday++;
+                    });
+                    
+                    // Persentase kehadiran hari ini
+                    const totalHadirToday = hadirToday + izinToday + sakitToday + alphaToday;
+                    const persentaseToday = totalHadirToday > 0 ? ((hadirToday / totalHadirToday) * 100).toFixed(1) : 0;
+                    
+                    const greeting = new Date().getHours() < 12 ? 'Selamat Pagi' : new Date().getHours() < 18 ? 'Selamat Siang' : 'Selamat Malam';
+                    const userName = currentUser ? currentUser.nama : 'Negaster';
+                    
+                    // Ambil aktivitas terbaru (5)
+                    const attRecentSnap = await db.collection('attendances')
+                        .orderBy('createdAt','desc')
+                        .limit(5)
+                        .get();
+                    const recentActivities = [];
+                    attRecentSnap.forEach(doc => recentActivities.push(doc.data()));
+                    
                     container.innerHTML = `
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                            <div class="card"><p class="text-sm text-gray-500">Total Anggota</p><p class="text-2xl font-bold">${membersSnap.size}</p></div>
-                            <div class="card"><p class="text-sm text-gray-500">Hadir Hari Ini</p><p class="text-2xl font-bold text-green-600">${hadir}</p></div>
-                            <div class="card"><p class="text-sm text-gray-500">Izin/Sakit</p><p class="text-2xl font-bold text-yellow-600">${izin+sakit}</p></div>
-                            <div class="card"><p class="text-sm text-gray-500">Alpha</p><p class="text-2xl font-bold text-red-600">${alpha}</p></div>
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+                            <div>
+                                <h1 class="text-2xl font-bold">${greeting}, ${userName} 👋</h1>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Ringkasan aktivitas Paskibra</p>
+                            </div>
                         </div>
-                        <div class="card"><h3 class="font-semibold mb-4">Aktivitas Hari Ini</h3><div id="recentActivities"></div></div>`;
-                    const acts=[]; attSnap.forEach(doc=>acts.push(doc.data()));
-                    const html=acts.slice(0,10).map(a=>`<div class="flex justify-between py-2"><span>${a.namaAnggota}</span><span class="badge ${a.status==='hadir'?'badge-success':'badge-warning'}">${a.status.toUpperCase()}</span><span class="text-gray-400">${a.jam||''}</span></div>`).join('')||'<p class="text-gray-400 text-center py-4">Belum ada aktivitas</p>';
-                    document.getElementById('recentActivities').innerHTML = html;
-                } catch(e){ console.error(e); }
+                        
+                        <!-- Statistik Utama -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <div class="card">
+                                <div class="flex items-center justify-between">
+                                    <p class="text-sm text-gray-500">Total Anggota</p>
+                                    <i data-lucide="users" class="w-5 h-5 text-blue-500"></i>
+                                </div>
+                                <p class="text-3xl font-bold mt-2">${membersSnap.size}</p>
+                            </div>
+                            <div class="card">
+                                <div class="flex items-center justify-between">
+                                    <p class="text-sm text-gray-500">Hadir Hari Ini</p>
+                                    <i data-lucide="check-circle" class="w-5 h-5 text-green-500"></i>
+                                </div>
+                                <p class="text-3xl font-bold mt-2 text-green-600">${hadirToday}</p>
+                            </div>
+                            <div class="card">
+                                <div class="flex items-center justify-between">
+                                    <p class="text-sm text-gray-500">Izin/Sakit</p>
+                                    <i data-lucide="alert-circle" class="w-5 h-5 text-yellow-500"></i>
+                                </div>
+                                <p class="text-3xl font-bold mt-2 text-yellow-600">${izinToday + sakitToday}</p>
+                            </div>
+                            <div class="card">
+                                <div class="flex items-center justify-between">
+                                    <p class="text-sm text-gray-500">Alpha</p>
+                                    <i data-lucide="x-circle" class="w-5 h-5 text-red-500"></i>
+                                </div>
+                                <p class="text-3xl font-bold mt-2 text-red-600">${alphaToday}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Statistik Tambahan -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <div class="card">
+                                <p class="text-sm text-gray-500">Total Akt</p>
+                                <p class="text-2xl font-bold mt-1">${aktsSnap.size}</p>
+                            </div>
+                            <div class="card">
+                                <p class="text-sm text-gray-500">Pengajuan Pending</p>
+                                <p class="text-2xl font-bold mt-1 text-orange-600">${pengajuanSnap.size}</p>
+                            </div>
+                            <div class="card">
+                                <p class="text-sm text-gray-500">Persentase Hadir Hari Ini</p>
+                                <p class="text-2xl font-bold mt-1 text-blue-600">${persentaseToday}%</p>
+                            </div>
+                            <div class="card">
+                                <p class="text-sm text-gray-500">Total Absensi Hari Ini</p>
+                                <p class="text-2xl font-bold mt-1">${totalHadirToday}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Aktivitas Terbaru -->
+                        <div class="card">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-semibold">Aktivitas Terbaru</h3>
+                                <span class="text-xs text-gray-400">5 terakhir</span>
+                            </div>
+                            <div id="recentActivities">
+                                ${recentActivities.length > 0 ? recentActivities.map(a => `
+                                    <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
+                                        <span class="font-medium">${a.namaAnggota}</span>
+                                        <span class="text-sm text-gray-400">${a.jam||''}</span>
+                                        <span class="badge ${a.status==='hadir'?'badge-success':a.status==='izin'?'badge-warning':a.status==='sakit'?'badge-purple':'badge-danger'}">${a.status.toUpperCase()}</span>
+                                    </div>
+                                `).join('') : '<p class="text-gray-400 text-center py-4">Belum ada aktivitas</p>'}
+                            </div>
+                            <button onclick="navigateTo('attendance')" class="btn-secondary mt-4 w-full justify-center">
+                                <i data-lucide="history" class="w-4 h-4"></i> Lihat Semua Riwayat
+                            </button>
+                        </div>
+                    `;
+                } catch(e) { 
+                    console.error('Dashboard error:', e); 
+                    container.innerHTML = '<p class="text-gray-500">Gagal memuat data: ' + e.message + '</p>';
+                }
             }
             lucide.createIcons();
         }
@@ -596,399 +1350,1075 @@
             try {
                 const snapshot = await db.collection('akts').orderBy('createdAt','desc').get();
                 const container = document.getElementById('aktList');
-                if (snapshot.empty) { container.innerHTML = '<div class="col-span-full text-center py-12"><p class="text-gray-500">Belum ada data Akt</p></div>'; return; }
+                if (snapshot.empty) {
+                    container.innerHTML = `
+                        <div class="col-span-full text-center py-12 card">
+                            <i data-lucide="folder-open" class="w-12 h-12 text-gray-300 mx-auto mb-2"></i>
+                            <p class="text-gray-500">Belum ada data Akt</p>
+                            <p class="text-xs text-gray-400 mt-1">Klik tombol "Tambah Akt" untuk mulai</p>
+                        </div>`;
+                    lucide.createIcons();
+                    return;
+                }
                 container.innerHTML = '';
                 snapshot.forEach(doc => {
                     const akt = doc.data();
-                    container.innerHTML += `<div class="card"><h3 class="font-semibold">${akt.nama}</h3><p class="text-sm text-gray-500">Tahun ${akt.tahun}</p><p class="text-sm text-gray-500">${akt.keterangan||''}</p><div class="flex gap-2 mt-3"><button onclick="editAkt('${doc.id}')" class="btn-secondary text-sm flex-1">Edit</button><button onclick="deleteAkt('${doc.id}')" class="btn-danger text-sm">Hapus</button></div></div>`;
+                    const card = document.createElement('div');
+                    card.className = 'card hover:shadow-lg transition-all';
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-600 font-bold">
+                                    ${akt.nama ? akt.nama.charAt(0) : 'A'}
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold">${akt.nama}</h3>
+                                    <p class="text-sm text-gray-500">Tahun ${akt.tahun}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">${akt.keterangan||'Tidak ada keterangan'}</p>
+                        <div class="flex gap-2 mt-4">
+                            <button onclick="editAkt('${doc.id}')" class="btn-secondary text-sm flex-1 py-2">
+                                <i data-lucide="edit" class="w-4 h-4"></i> Edit
+                            </button>
+                            <button onclick="deleteAkt('${doc.id}')" class="btn-danger text-sm py-2">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i> Hapus
+                            </button>
+                        </div>`;
+                    container.appendChild(card);
                 });
                 lucide.createIcons();
-            } catch(e){ console.error(e); }
+            } catch(e) { 
+                showToast('❌ Gagal memuat data Akt', 'error'); 
+            }
         }
 
-        function showAddAktModal() { document.getElementById('aktModalTitle').textContent='Tambah Akt'; document.getElementById('aktId').value=''; document.getElementById('aktName').value=''; document.getElementById('aktYear').value=''; document.getElementById('aktDescription').value=''; document.getElementById('aktModal').classList.add('active'); }
-        async function editAkt(id) { try { const doc=await db.collection('akts').doc(id).get(); const akt=doc.data(); document.getElementById('aktModalTitle').textContent='Edit Akt'; document.getElementById('aktId').value=id; document.getElementById('aktName').value=akt.nama; document.getElementById('aktYear').value=akt.tahun; document.getElementById('aktDescription').value=akt.keterangan||''; document.getElementById('aktModal').classList.add('active'); } catch(e){ showToast('❌ Gagal memuat data','error'); } }
-        async function saveAkt() { const id=document.getElementById('aktId').value; const nama=document.getElementById('aktName').value.trim(); const tahun=document.getElementById('aktYear').value; const keterangan=document.getElementById('aktDescription').value.trim(); if(!nama||!tahun){ showToast('❌ Nama dan tahun wajib diisi!','error'); return; } try { const data={nama,tahun,keterangan,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}; if(id){ await db.collection('akts').doc(id).update(data); showToast('✅ Akt diperbarui!','success'); } else { data.createdAt=firebase.firestore.FieldValue.serverTimestamp(); await db.collection('akts').add(data); showToast('✅ Akt ditambahkan!','success'); } closeModal('aktModal'); loadAkts(); loadAktOptions(); } catch(e){ showToast('❌ Gagal menyimpan','error'); } }
-        async function deleteAkt(id) { if(!confirm('Hapus Akt ini?')) return; try { await db.collection('akts').doc(id).delete(); showToast('✅ Akt dihapus','success'); loadAkts(); loadAktOptions(); } catch(e){ showToast('❌ Gagal menghapus','error'); } }
+        function showAddAktModal() {
+            document.getElementById('aktModalTitle').textContent = 'Tambah Akt';
+            document.getElementById('aktId').value = '';
+            document.getElementById('aktName').value = '';
+            document.getElementById('aktYear').value = '';
+            document.getElementById('aktDescription').value = '';
+            document.getElementById('aktModal').classList.add('active');
+            lucide.createIcons();
+        }
+
+        async function editAkt(id) {
+            try {
+                const doc = await db.collection('akts').doc(id).get();
+                const akt = doc.data();
+                document.getElementById('aktModalTitle').textContent = 'Edit Akt';
+                document.getElementById('aktId').value = id;
+                document.getElementById('aktName').value = akt.nama;
+                document.getElementById('aktYear').value = akt.tahun;
+                document.getElementById('aktDescription').value = akt.keterangan || '';
+                document.getElementById('aktModal').classList.add('active');
+                lucide.createIcons();
+            } catch(e) { 
+                showToast('❌ Gagal memuat data','error'); 
+            }
+        }
+
+        async function saveAkt() {
+            const id = document.getElementById('aktId').value;
+            const nama = document.getElementById('aktName').value.trim();
+            const tahun = document.getElementById('aktYear').value;
+            const keterangan = document.getElementById('aktDescription').value.trim();
+            if (!nama || !tahun) { showToast('❌ Nama dan tahun wajib diisi!','error'); return; }
+            try {
+                const data = { nama, tahun, keterangan, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+                if (id) {
+                    await db.collection('akts').doc(id).update(data);
+                    showToast('✅ Akt diperbarui!','success');
+                } else {
+                    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('akts').add(data);
+                    showToast('✅ Akt ditambahkan!','success');
+                }
+                closeModal('aktModal');
+                loadAkts();
+                loadAktOptions();
+            } catch(e) { 
+                showToast('❌ Gagal menyimpan','error'); 
+            }
+        }
+
+        async function deleteAkt(id) {
+            if (!confirm('Hapus Akt ini?')) return;
+            try {
+                await db.collection('akts').doc(id).delete();
+                showToast('✅ Akt dihapus','success');
+                loadAkts();
+                loadAktOptions();
+            } catch(e) { 
+                showToast('❌ Gagal menghapus','error'); 
+            }
+        }
 
         // ==================== MEMBER CRUD ====================
         async function loadMembers() {
             try {
                 const snapshot = await db.collection('members').orderBy('createdAt','desc').get();
                 const tbody = document.getElementById('membersTableBody');
-                if (snapshot.empty) { tbody.innerHTML='<tr><td colspan="6" class="text-center py-12 text-gray-500">Belum ada anggota</td></tr>'; return; }
-                tbody.innerHTML='';
+                if (snapshot.empty) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center py-12 text-gray-500">Belum ada anggota</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = '';
                 snapshot.forEach(doc => {
-                    const m=doc.data();
-                    tbody.innerHTML += `<tr><td>${m.nomorAnggota||'-'}</td><td>${m.namaLengkap}</td><td>${m.aktNama||'-'}</td><td>${m.nomorAnggota||'-'}</td><td><span class="badge badge-success">Aktif</span></td><td><div class="flex gap-1"><button onclick="editMember('${doc.id}')" class="text-blue-600"><i data-lucide="edit" class="w-4 h-4"></i></button><button onclick="deleteMember('${doc.id}')" class="text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></td></tr>`;
+                    const m = doc.data();
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="font-medium">${m.nomorAnggota||'-'}</td>
+                            <td>${m.namaLengkap}</td>
+                            <td>${m.aktNama||'-'}</td>
+                            <td>${m.jenisKelamin==='L'?'L':'P'}</td>
+                            <td>${m.jabatan||'-'}</td>
+                            <td><span class="badge badge-success">Aktif</span></td>
+                            <td class="no-print">
+                                <div class="flex gap-1">
+                                    <button onclick="editMember('${doc.id}')" class="p-1.5 rounded-lg hover:bg-blue-50 text-blue-600" title="Edit">
+                                        <i data-lucide="edit" class="w-4 h-4"></i>
+                                    </button>
+                                    <button onclick="deleteMember('${doc.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-600" title="Hapus">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>`;
                 });
                 lucide.createIcons();
-            } catch(e){ console.error(e); }
+            } catch(e) { 
+                showToast('❌ Gagal memuat anggota','error'); 
+            }
         }
 
-        function showAddMemberModal() { document.getElementById('memberModalTitle').textContent='Tambah Anggota'; document.getElementById('memberId').value=''; document.getElementById('memberName').value=''; document.getElementById('memberPhone').value=''; document.getElementById('memberJabatan').value=''; loadAktOptions('memberAkt'); document.getElementById('memberModal').classList.add('active'); }
-        async function editMember(id) { try { const doc=await db.collection('members').doc(id).get(); const m=doc.data(); document.getElementById('memberModalTitle').textContent='Edit Anggota'; document.getElementById('memberId').value=id; document.getElementById('memberName').value=m.namaLengkap; document.getElementById('memberPhone').value=m.noHP||''; document.getElementById('memberJabatan').value=m.jabatan||''; await loadAktOptions('memberAkt'); document.getElementById('memberAkt').value=m.aktId||''; document.getElementById('memberGender').value=m.jenisKelamin||'L'; document.getElementById('memberModal').classList.add('active'); } catch(e){ showToast('❌ Gagal memuat data','error'); } }
-        async function saveMember() { const id=document.getElementById('memberId').value; const nama=document.getElementById('memberName').value.trim(); const aktId=document.getElementById('memberAkt').value; const gender=document.getElementById('memberGender').value; const phone=document.getElementById('memberPhone').value.trim(); const jabatan=document.getElementById('memberJabatan').value.trim(); if(!nama||!aktId){ showToast('❌ Nama dan Akt wajib diisi!','error'); return; } try { const aktDoc=await db.collection('akts').doc(aktId).get(); const aktNama=aktDoc.exists?aktDoc.data().nama:'Unknown'; const data={namaLengkap:nama,aktId,aktNama,jenisKelamin:gender,noHP:phone,jabatan,statusAktif:true,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}; if(id){ await db.collection('members').doc(id).update(data); showToast('✅ Anggota diperbarui!','success'); } else { const count=(await db.collection('members').get()).size+1; data.nomorAnggota=`A-${String(count).padStart(3,'0')}`; data.password='123456'; data.qrCodeId=crypto.randomUUID(); data.createdAt=firebase.firestore.FieldValue.serverTimestamp(); await db.collection('members').add(data); showToast('✅ Anggota ditambahkan!','success'); } closeModal('memberModal'); loadMembers(); loadDashboard(); } catch(e){ showToast('❌ Gagal menyimpan','error'); } }
-        async function deleteMember(id) { if(!confirm('Hapus anggota ini?')) return; try { await db.collection('members').doc(id).delete(); showToast('✅ Anggota dihapus','success'); loadMembers(); } catch(e){ showToast('❌ Gagal menghapus','error'); } }
+        function showAddMemberModal() {
+            document.getElementById('memberModalTitle').textContent = 'Tambah Anggota';
+            document.getElementById('memberId').value = '';
+            document.getElementById('memberName').value = '';
+            document.getElementById('memberPhone').value = '';
+            document.getElementById('memberJabatan').value = '';
+            document.getElementById('memberGender').value = 'L';
+            loadAktOptions('memberAkt');
+            document.getElementById('memberModal').classList.add('active');
+            lucide.createIcons();
+        }
+
+        async function editMember(id) {
+            try {
+                const doc = await db.collection('members').doc(id).get();
+                const m = doc.data();
+                document.getElementById('memberModalTitle').textContent = 'Edit Anggota';
+                document.getElementById('memberId').value = id;
+                document.getElementById('memberName').value = m.namaLengkap;
+                document.getElementById('memberPhone').value = m.noHP || '';
+                document.getElementById('memberJabatan').value = m.jabatan || '';
+                document.getElementById('memberGender').value = m.jenisKelamin || 'L';
+                await loadAktOptions('memberAkt');
+                document.getElementById('memberAkt').value = m.aktId || '';
+                document.getElementById('memberModal').classList.add('active');
+                lucide.createIcons();
+            } catch(e) { 
+                showToast('❌ Gagal memuat data','error'); 
+            }
+        }
+
+        async function saveMember() {
+            const id = document.getElementById('memberId').value;
+            const nama = document.getElementById('memberName').value.trim();
+            const aktId = document.getElementById('memberAkt').value;
+            const gender = document.getElementById('memberGender').value;
+            const phone = document.getElementById('memberPhone').value.trim();
+            const jabatan = document.getElementById('memberJabatan').value.trim();
+            if (!nama || !aktId) { showToast('❌ Nama dan Akt wajib diisi!','error'); return; }
+            try {
+                const aktDoc = await db.collection('akts').doc(aktId).get();
+                const aktNama = aktDoc.exists ? aktDoc.data().nama : 'Unknown';
+                const data = { 
+                    namaLengkap: nama, 
+                    aktId, 
+                    aktNama, 
+                    jenisKelamin: gender, 
+                    noHP: phone, 
+                    jabatan, 
+                    statusAktif: true, 
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp() 
+                };
+                if (id) {
+                    await db.collection('members').doc(id).update(data);
+                    showToast('✅ Anggota diperbarui!','success');
+                } else {
+                    const allMembers = await db.collection('members').get();
+                    const count = allMembers.size + 1;
+                    data.nomorAnggota = `A-${String(count).padStart(3,'0')}`;
+                    data.password = '123456'; // Default, tidak ditampilkan di UI
+                    data.qrCodeId = crypto.randomUUID();
+                    data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('members').add(data);
+                    showToast(`✅ Anggota ditambahkan! Nomor: ${data.nomorAnggota}`, 'success');
+                }
+                closeModal('memberModal');
+                loadMembers();
+                loadDashboard();
+            } catch(e) { 
+                showToast('❌ Gagal menyimpan','error'); 
+            }
+        }
+
+        async function deleteMember(id) {
+            if (!confirm('Hapus anggota ini?')) return;
+            try {
+                await db.collection('members').doc(id).delete();
+                showToast('✅ Anggota dihapus','success');
+                loadMembers();
+                loadDashboard();
+            } catch(e) { 
+                showToast('❌ Gagal menghapus','error'); 
+            }
+        }
 
         // ==================== QR GENERATOR ====================
-        async function loadAktOptions(targetId='selectAktQR') {
+        async function loadAktOptions(targetId = 'selectAktQR') {
             try {
-                const snapshot = await db.collection('akts').get();
-                const targets = [targetId];
-                if(targetId==='selectAktQR') targets.push('manualAkt','exportAkt');
-                if(targetId==='memberAkt') targets.push('memberAkt');
-                targets.forEach(id => { const select=document.getElementById(id); if(!select) return; let options='<option value="">-- Pilih Akt --</option>'; snapshot.forEach(doc=>{ const akt=doc.data(); options+=`<option value="${doc.id}">${akt.nama} (${akt.tahun})</option>`; }); select.innerHTML=options; });
-            } catch(e){ console.error(e); }
+                const snapshot = await db.collection('akts').orderBy('nama').get();
+                const targetSelect = document.getElementById(targetId);
+                if (!targetSelect) return;
+                
+                let options = '<option value="">-- Pilih Akt --</option>';
+                snapshot.forEach(doc => {
+                    const akt = doc.data();
+                    options += `<option value="${doc.id}">${akt.nama} (${akt.tahun})</option>`;
+                });
+                targetSelect.innerHTML = options;
+                
+                if (targetId === 'selectAktQR') {
+                    const manualSelect = document.getElementById('manualAkt');
+                    const exportSelect = document.getElementById('exportAkt');
+                    if (manualSelect) manualSelect.innerHTML = options;
+                    if (exportSelect) exportSelect.innerHTML = '<option value="">Semua Akt</option>' + options.replace('<option value="">-- Pilih Akt --</option>', '');
+                }
+            } catch(e) { 
+                console.error(e); 
+            }
         }
 
         async function generateQRCodes() {
-            const aktId=document.getElementById('selectAktQR').value;
-            if(!aktId){ showToast('❌ Pilih Akt!','error'); return; }
-            currentAktId=aktId;
+            const aktId = document.getElementById('selectAktQR').value;
+            if (!aktId) { showToast('❌ Pilih Akt!','error'); return; }
+            
             try {
-                const membersSnap=await db.collection('members').where('aktId','==',aktId).get();
-                const container=document.getElementById('qrResults');
-                container.innerHTML=''; generatedQRData=[];
-                if(membersSnap.empty){ container.innerHTML='<div class="col-span-full text-center py-12"><p class="text-gray-500">Tidak ada anggota</p></div>'; document.getElementById('btnDownloadAll').classList.add('hidden'); return; }
-                membersSnap.forEach(doc=>{
-                    const m=doc.data();
-                    generatedQRData.push({id:doc.id,nama:m.namaLengkap,nomor:m.nomorAnggota,akt:m.aktNama,qrCodeId:m.qrCodeId||doc.id});
-                    const card=document.createElement('div'); card.className='card text-center';
-                    card.innerHTML=`<div id="qr-${doc.id}" class="qr-frame mx-auto mb-3 inline-block"></div><p class="font-semibold text-sm">${m.namaLengkap}</p><p class="text-xs text-gray-500">${m.nomorAnggota}</p><p class="text-xs text-gray-400 mb-3">${m.aktNama}</p><button onclick="downloadSingleQR('${doc.id}')" class="btn-primary text-xs py-2 px-3 w-full justify-center"><i data-lucide="download" class="w-3 h-3"></i> Download</button>`;
+                const membersSnap = await db.collection('members').where('aktId','==',aktId).get();
+                const container = document.getElementById('qrResults');
+                container.innerHTML = '';
+                generatedQRData = [];
+                
+                if (membersSnap.empty) {
+                    container.innerHTML = '<div class="col-span-full text-center py-12"><p class="text-gray-500">Tidak ada anggota di Akt ini</p></div>';
+                    document.getElementById('btnDownloadAll').classList.add('hidden');
+                    return;
+                }
+                
+                membersSnap.forEach(doc => {
+                    const m = doc.data();
+                    generatedQRData.push({ id: doc.id, nama: m.namaLengkap, nomor: m.nomorAnggota, akt: m.aktNama, qrCodeId: m.qrCodeId || doc.id });
+                    
+                    const card = document.createElement('div');
+                    card.className = 'card text-center hover:shadow-lg transition-all';
+                    card.innerHTML = `
+                        <div id="qr-${doc.id}" class="qr-frame mx-auto mb-3 inline-block"></div>
+                        <p class="font-semibold text-sm">${m.namaLengkap}</p>
+                        <p class="text-xs text-gray-500">${m.nomorAnggota}</p>
+                        <p class="text-xs text-gray-400 mb-3">${m.aktNama}</p>
+                        <button onclick="downloadSingleQR('${doc.id}')" class="btn-primary text-xs py-2 px-3 w-full justify-center">
+                            <i data-lucide="download" class="w-3 h-3"></i> Download
+                        </button>
+                    `;
                     container.appendChild(card);
-                    setTimeout(()=>{
-                        const qrDiv=document.getElementById(`qr-${doc.id}`);
-                        if(qrDiv && typeof QRCode!=='undefined'){ qrDiv.innerHTML=''; new QRCode(qrDiv,{text:m.qrCodeId||doc.id,width:300,height:300,colorDark:'#0B1E33',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H}); }
-                    },100);
+                    
+                    setTimeout(() => {
+                        const qrDiv = document.getElementById(`qr-${doc.id}`);
+                        if (qrDiv && typeof QRCode !== 'undefined') {
+                            qrDiv.innerHTML = '';
+                            new QRCode(qrDiv, {
+                                text: m.qrCodeId || doc.id,
+                                width: 300,
+                                height: 300,
+                                colorDark: '#0B1E33',
+                                colorLight: '#ffffff',
+                                correctLevel: QRCode.CorrectLevel.H
+                            });
+                        }
+                    }, 100);
                 });
+                
                 document.getElementById('btnDownloadAll').classList.remove('hidden');
                 lucide.createIcons();
-                showToast(`✅ QR Code untuk ${membersSnap.size} anggota`,'success');
-            } catch(e){ showToast('❌ Gagal generate QR','error'); }
+                showToast(`✅ QR Code untuk ${membersSnap.size} anggota berhasil dibuat`, 'success');
+            } catch(e) {
+                showToast('❌ Gagal generate QR', 'error');
+            }
         }
 
         function downloadSingleQR(memberId) {
-            const data=generatedQRData.find(d=>d.id===memberId);
-            if(!data) return;
-            const qrDiv=document.getElementById(`qr-${memberId}`);
-            if(!qrDiv) return;
-            const qrCanvas=qrDiv.querySelector('canvas');
-            const qrImg=qrDiv.querySelector('img');
-            if(!qrCanvas&&!qrImg){ showToast('❌ QR belum siap','error'); return; }
-            const finalCanvas=document.createElement('canvas'); const ctx=finalCanvas.getContext('2d');
-            const qrSize=300,padding=40,infoHeight=100;
-            finalCanvas.width=qrSize+padding*2; finalCanvas.height=qrSize+padding*2+infoHeight;
-            ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,finalCanvas.width,finalCanvas.height);
-            ctx.strokeStyle='#2563EB'; ctx.lineWidth=3; ctx.strokeRect(10,10,finalCanvas.width-20,finalCanvas.height-20);
-            ctx.drawImage(qrCanvas||qrImg,padding,padding,qrSize,qrSize);
-            ctx.fillStyle='#1e293b'; ctx.textAlign='center'; ctx.font='bold 20px Inter';
-            ctx.fillText(data.nama,finalCanvas.width/2,qrSize+padding+30);
-            ctx.font='16px Inter'; ctx.fillStyle='#64748b';
-            ctx.fillText(`${data.nomor} • ${data.akt}`,finalCanvas.width/2,qrSize+padding+55);
-            const link=document.createElement('a');
-            link.download=`QR-${data.nama.replace(/\s+/g,'-')}.png`;
-            link.href=finalCanvas.toDataURL('image/png',1.0); link.click();
-            showToast('✅ QR diunduh','success');
+            const data = generatedQRData.find(d => d.id === memberId);
+            if (!data) return;
+            const qrDiv = document.getElementById(`qr-${memberId}`);
+            if (!qrDiv) return;
+            const qrCanvas = qrDiv.querySelector('canvas');
+            const qrImg = qrDiv.querySelector('img');
+            if (!qrCanvas && !qrImg) { showToast('❌ QR belum siap','error'); return; }
+            
+            const finalCanvas = document.createElement('canvas');
+            const ctx = finalCanvas.getContext('2d');
+            const qrSize = 300, padding = 40, infoHeight = 100;
+            finalCanvas.width = qrSize + padding * 2;
+            finalCanvas.height = qrSize + padding * 2 + infoHeight;
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+            ctx.strokeStyle = '#2563EB';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(10, 10, finalCanvas.width - 20, finalCanvas.height - 20);
+            ctx.drawImage(qrCanvas || qrImg, padding, padding, qrSize, qrSize);
+            ctx.fillStyle = '#1e293b';
+            ctx.textAlign = 'center';
+            ctx.font = 'bold 20px Inter, sans-serif';
+            ctx.fillText(data.nama, finalCanvas.width / 2, qrSize + padding + 30);
+            ctx.font = '16px Inter, sans-serif';
+            ctx.fillStyle = '#64748b';
+            ctx.fillText(`${data.nomor} • ${data.akt}`, finalCanvas.width / 2, qrSize + padding + 55);
+            
+            const link = document.createElement('a');
+            link.download = `QR-${data.nama.replace(/\s+/g,'-')}.png`;
+            link.href = finalCanvas.toDataURL('image/png', 1.0);
+            link.click();
+            showToast('✅ QR diunduh', 'success');
         }
 
         async function downloadAllQRCodes() {
-            if(generatedQRData.length===0){ showToast('❌ Generate QR dulu!','error'); return; }
-            try{
+            if (generatedQRData.length === 0) { showToast('❌ Generate QR dulu!','error'); return; }
+            try {
                 showToast('📦 Membuat ZIP...','info');
-                const zip=new JSZip(); const folder=zip.folder('QR-Codes');
-                for(const data of generatedQRData){
-                    const qrDiv=document.getElementById(`qr-${data.id}`); if(!qrDiv) continue;
-                    const qrCanvas=qrDiv.querySelector('canvas'); const qrImg=qrDiv.querySelector('img'); if(!qrCanvas&&!qrImg) continue;
-                    const finalCanvas=document.createElement('canvas'); const ctx=finalCanvas.getContext('2d');
-                    const qrSize=300,padding=40,infoHeight=100;
-                    finalCanvas.width=qrSize+padding*2; finalCanvas.height=qrSize+padding*2+infoHeight;
-                    ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,finalCanvas.width,finalCanvas.height);
-                    ctx.strokeStyle='#2563EB'; ctx.lineWidth=3; ctx.strokeRect(10,10,finalCanvas.width-20,finalCanvas.height-20);
-                    ctx.drawImage(qrCanvas||qrImg,padding,padding,qrSize,qrSize);
-                    ctx.fillStyle='#1e293b'; ctx.textAlign='center'; ctx.font='bold 20px Inter';
-                    ctx.fillText(data.nama,finalCanvas.width/2,qrSize+padding+30);
-                    ctx.font='16px Inter'; ctx.fillStyle='#64748b';
-                    ctx.fillText(`${data.nomor} • ${data.akt}`,finalCanvas.width/2,qrSize+padding+55);
-                    const imageData=finalCanvas.toDataURL('image/png',1.0).split(',')[1];
-                    folder.file(`QR-${data.nama.replace(/\s+/g,'-')}.png`,imageData,{base64:true});
+                const zip = new JSZip();
+                const folder = zip.folder('QR-Codes');
+                
+                for (const data of generatedQRData) {
+                    const qrDiv = document.getElementById(`qr-${data.id}`);
+                    if (!qrDiv) continue;
+                    const qrCanvas = qrDiv.querySelector('canvas');
+                    const qrImg = qrDiv.querySelector('img');
+                    if (!qrCanvas && !qrImg) continue;
+                    
+                    const finalCanvas = document.createElement('canvas');
+                    const ctx = finalCanvas.getContext('2d');
+                    const qrSize = 300, padding = 40, infoHeight = 100;
+                    finalCanvas.width = qrSize + padding * 2;
+                    finalCanvas.height = qrSize + padding * 2 + infoHeight;
+                    
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+                    ctx.strokeStyle = '#2563EB';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(10, 10, finalCanvas.width - 20, finalCanvas.height - 20);
+                    ctx.drawImage(qrCanvas || qrImg, padding, padding, qrSize, qrSize);
+                    ctx.fillStyle = '#1e293b';
+                    ctx.textAlign = 'center';
+                    ctx.font = 'bold 20px Inter, sans-serif';
+                    ctx.fillText(data.nama, finalCanvas.width / 2, qrSize + padding + 30);
+                    ctx.font = '16px Inter, sans-serif';
+                    ctx.fillStyle = '#64748b';
+                    ctx.fillText(`${data.nomor} • ${data.akt}`, finalCanvas.width / 2, qrSize + padding + 55);
+                    
+                    const imageData = finalCanvas.toDataURL('image/png', 1.0).split(',')[1];
+                    folder.file(`QR-${data.nama.replace(/\s+/g,'-')}.png`, imageData, { base64: true });
                 }
-                const content=await zip.generateAsync({type:'blob'});
-                saveAs(content,`QR-Codes-${Date.now()}.zip`);
-                showToast('✅ ZIP diunduh!','success');
-            } catch(e){ showToast('❌ Gagal membuat ZIP','error'); }
+                
+                const content = await zip.generateAsync({ type: 'blob' });
+                saveAs(content, `QR-Codes-${Date.now()}.zip`);
+                showToast('✅ ZIP diunduh!', 'success');
+            } catch(e) { 
+                showToast('❌ Gagal membuat ZIP', 'error'); 
+            }
         }
 
         // ==================== SCANNER ====================
         async function startScanner() {
-            const container=document.getElementById('scannerContainer');
-            if(!container||typeof Html5Qrcode==='undefined'){ showToast('❌ Scanner belum siap','error'); return; }
-            if(html5QrScanner===null) html5QrScanner=new Html5Qrcode("scannerContainer");
-            try{
-                await html5QrScanner.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:250}},
-                async(decodedText)=>{ await stopScanner(); await processQRScan(decodedText); },
-                ()=>{});
+            const container = document.getElementById('scannerContainer');
+            if (!container || typeof Html5Qrcode === 'undefined') { showToast('❌ Scanner belum siap','error'); return; }
+            if (html5QrScanner === null) html5QrScanner = new Html5Qrcode("scannerContainer");
+            
+            try {
+                await html5QrScanner.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    async (decodedText) => {
+                        await stopScanner();
+                        await processQRScan(decodedText);
+                    },
+                    () => {}
+                );
                 document.getElementById('btnStartScan').classList.add('hidden');
                 document.getElementById('btnStopScan').classList.remove('hidden');
-            } catch(e){ showToast('❌ Gagal akses kamera','error'); }
+                document.getElementById('scanStatus').textContent = 'Scanning...';
+                document.getElementById('scanResult').classList.add('hidden');
+            } catch(e) { 
+                showToast('❌ Gagal akses kamera','error'); 
+            }
         }
 
         async function stopScanner() {
-            if(html5QrScanner){ try{ await html5QrScanner.stop(); }catch(e){} }
+            if (html5QrScanner) {
+                try { await html5QrScanner.stop(); html5QrScanner.clear(); } catch(e) {}
+            }
             document.getElementById('btnStartScan').classList.remove('hidden');
             document.getElementById('btnStopScan').classList.add('hidden');
+            document.getElementById('scanStatus').textContent = 'Arahkan kamera ke QR Code anggota';
         }
 
         async function processQRScan(qrData) {
-            try{
-                const membersSnap=await db.collection('members').where('qrCodeId','==',qrData).get();
-                if(membersSnap.empty){ showToast('❌ QR tidak dikenali!','error'); return; }
-                const memberDoc=membersSnap.docs[0]; const member=memberDoc.data();
-                const today=new Date().toISOString().split('T')[0];
-                const now=new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
-                const existingSnap=await db.collection('attendances').where('memberId','==',memberDoc.id).where('tanggal','==',today).get();
-                if(!existingSnap.empty){ showToast('⚠️ Sudah absen hari ini!','error'); return; }
-                await db.collection('attendances').add({memberId:memberDoc.id,namaAnggota:member.namaLengkap,nomorAnggota:member.nomorAnggota,aktId:member.aktId,aktNama:member.aktNama,tanggal:today,jam:now,status:'hadir',scanMethod:'qr',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+            try {
+                const membersSnap = await db.collection('members').where('qrCodeId','==',qrData).get();
+                if (membersSnap.empty) { showToast('❌ QR tidak dikenali!','error'); return; }
+                
+                const memberDoc = membersSnap.docs[0];
+                const member = memberDoc.data();
+                const today = new Date().toISOString().split('T')[0];
+                const now = new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+                
+                const existingSnap = await db.collection('attendances')
+                    .where('memberId','==',memberDoc.id)
+                    .where('tanggal','==',today)
+                    .get();
+                
+                if (!existingSnap.empty) { showToast('⚠️ Anggota sudah absen hari ini!','warning'); return; }
+                
+                await db.collection('attendances').add({
+                    memberId: memberDoc.id,
+                    namaAnggota: member.namaLengkap,
+                    nomorAnggota: member.nomorAnggota,
+                    aktId: member.aktId,
+                    aktNama: member.aktNama,
+                    tanggal: today,
+                    jam: now,
+                    status: 'hadir',
+                    scanMethod: 'qr',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
                 document.getElementById('scanResult').classList.remove('hidden');
-                document.getElementById('scanDetail').textContent=`${member.namaLengkap} • ${member.nomorAnggota} • ${member.aktNama} • ${now}`;
+                document.getElementById('scanDetail').textContent = `${member.namaLengkap} • ${member.nomorAnggota} • ${member.aktNama} • ${now}`;
                 showToast('✅ Absensi berhasil!','success');
                 lucide.createIcons();
-                setTimeout(()=>document.getElementById('scanResult').classList.add('hidden'),3000);
-            } catch(e){ showToast('❌ Gagal proses','error'); }
+                setTimeout(() => document.getElementById('scanResult').classList.add('hidden'), 5000);
+            } catch(e) { 
+                showToast('❌ Gagal proses absensi','error'); 
+            }
         }
 
         // ==================== MANUAL ABSENT ====================
         async function loadMembersByAkt() {
-            const aktId=document.getElementById('manualAkt').value;
-            const select=document.getElementById('manualMember');
-            if(!aktId||!select) return;
-            try{
-                const snap=await db.collection('members').where('aktId','==',aktId).where('statusAktif','==',true).get();
-                let options='<option value="">-- Pilih Anggota --</option>';
-                snap.forEach(doc=>{ const m=doc.data(); options+=`<option value="${doc.id}">${m.namaLengkap} (${m.nomorAnggota})</option>`; });
-                select.innerHTML=options;
-            }catch(e){ console.error(e); }
+            const aktId = document.getElementById('manualAkt').value;
+            const select = document.getElementById('manualMember');
+            if (!aktId || !select) return;
+            try {
+                const snap = await db.collection('members').where('aktId','==',aktId).where('statusAktif','==',true).get();
+                let options = '<option value="">-- Pilih Anggota --</option>';
+                snap.forEach(doc => {
+                    const m = doc.data();
+                    options += `<option value="${doc.id}">${m.namaLengkap} (${m.nomorAnggota})</option>`;
+                });
+                select.innerHTML = options;
+                lucide.createIcons();
+            } catch(e) { console.error(e); }
         }
 
         async function submitManualAbsent() {
-            const memberId=document.getElementById('manualMember').value;
-            const status=document.getElementById('manualStatus').value;
-            const keterangan=document.getElementById('manualKeterangan').value.trim();
-            if(!memberId||!status){ showToast('❌ Pilih anggota dan status!','error'); return; }
-            try{
-                const memberDoc=await db.collection('members').doc(memberId).get();
-                const member=memberDoc.data();
-                const today=new Date().toISOString().split('T')[0];
-                const now=new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
-                const existingSnap=await db.collection('attendances').where('memberId','==',memberId).where('tanggal','==',today).get();
-                if(!existingSnap.empty){ showToast('⚠️ Sudah absen hari ini!','error'); return; }
-                await db.collection('attendances').add({memberId,namaAnggota:member.namaLengkap,nomorAnggota:member.nomorAnggota,aktId:member.aktId,aktNama:member.aktNama,tanggal:today,jam:now,status,keterangan,scanMethod:'manual',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+            const memberId = document.getElementById('manualMember').value;
+            const status = document.getElementById('manualStatus').value;
+            const keterangan = document.getElementById('manualKeterangan').value.trim();
+            if (!memberId || !status) { showToast('❌ Pilih anggota dan status!','error'); return; }
+            try {
+                const memberDoc = await db.collection('members').doc(memberId).get();
+                const member = memberDoc.data();
+                const today = new Date().toISOString().split('T')[0];
+                const now = new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+                
+                const existingSnap = await db.collection('attendances')
+                    .where('memberId','==',memberId)
+                    .where('tanggal','==',today)
+                    .get();
+                
+                if (!existingSnap.empty) { showToast('⚠️ Anggota sudah absen hari ini!','warning'); return; }
+                
+                await db.collection('attendances').add({
+                    memberId,
+                    namaAnggota: member.namaLengkap,
+                    nomorAnggota: member.nomorAnggota,
+                    aktId: member.aktId,
+                    aktNama: member.aktNama,
+                    tanggal: today,
+                    jam: now,
+                    status,
+                    keterangan,
+                    scanMethod: 'manual',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
                 showToast('✅ Absensi manual berhasil!','success');
-                document.getElementById('manualMember').value=''; document.getElementById('manualKeterangan').value='';
-            }catch(e){ showToast('❌ Gagal menyimpan','error'); }
+                document.getElementById('manualMember').value = '';
+                document.getElementById('manualKeterangan').value = '';
+                document.getElementById('manualStatus').value = 'hadir';
+            } catch(e) { 
+                showToast('❌ Gagal menyimpan','error'); 
+            }
         }
 
         // ==================== ATTENDANCE HISTORY ====================
         async function loadAttendanceHistory() {
-            try{
-                const snap=await db.collection('attendances').orderBy('createdAt','desc').limit(100).get();
-                const tbody=document.getElementById('attendanceTableBody');
-                if(snap.empty){ tbody.innerHTML='<tr><td colspan="5" class="text-center py-12 text-gray-500">Belum ada data</td></tr>'; return; }
-                tbody.innerHTML='';
-                snap.forEach(doc=>{
-                    const a=doc.data();
-                    tbody.innerHTML+=`<tr><td>${a.tanggal}</td><td>${a.namaAnggota}</td><td>${a.aktNama}</td><td>${a.jam}</td><td><span class="badge ${a.status==='hadir'?'badge-success':a.status==='izin'?'badge-warning':a.status==='sakit'?'badge-purple':'badge-danger'}">${a.status.toUpperCase()}</span></td></tr>`;
+            try {
+                const snap = await db.collection('attendances').orderBy('createdAt','desc').limit(100).get();
+                const tbody = document.getElementById('attendanceTableBody');
+                if (snap.empty) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-12 text-gray-500">Belum ada data absensi</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = '';
+                snap.forEach(doc => {
+                    const a = doc.data();
+                    const statusBadge = a.status==='hadir' ? 'badge-success' : a.status==='izin' ? 'badge-warning' : a.status==='sakit' ? 'badge-purple' : 'badge-danger';
+                    const methodLabel = a.scanMethod==='qr' ? '📱 QR' : a.scanMethod==='manual' ? '✍️ Manual' : '📝 Pengajuan';
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${a.tanggal}</td>
+                            <td class="font-medium">${a.namaAnggota}</td>
+                            <td>${a.aktNama}</td>
+                            <td>${a.jam}</td>
+                            <td><span class="badge ${statusBadge}">${a.status.toUpperCase()}</span></td>
+                            <td>${methodLabel}</td>
+                        </tr>`;
                 });
                 lucide.createIcons();
-            }catch(e){ console.error(e); }
+            } catch(e) { 
+                showToast('❌ Gagal memuat riwayat','error'); 
+            }
         }
 
         // ==================== REKAP ====================
         async function loadRekap() {
-            try{
-                const now=new Date();
-                const firstDay=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split('T')[0];
-                const today=now.toISOString().split('T')[0];
-                const snap=await db.collection('attendances').where('tanggal','>=',firstDay).where('tanggal','<=',today).get();
-                let hadir=0,izin=0,sakit=0,alpha=0;
-                snap.forEach(doc=>{const d=doc.data();if(d.status==='hadir')hadir++;else if(d.status==='izin')izin++;else if(d.status==='sakit')sakit++;else if(d.status==='alpha')alpha++;});
-                const total=hadir+izin+sakit+alpha;
-                const persentase=total>0?((hadir/total)*100).toFixed(1):0;
-                document.getElementById('rekapHadir').textContent=hadir;
-                document.getElementById('rekapIzin').textContent=izin;
-                document.getElementById('rekapSakit').textContent=sakit;
-                document.getElementById('rekapAlpha').textContent=alpha;
-                document.getElementById('rekapPersentase').textContent=persentase+'%';
-                document.getElementById('rekapProgressBar').style.width=persentase+'%';
-            }catch(e){ console.error(e); }
+            try {
+                const now = new Date();
+                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+                const today = now.toISOString().split('T')[0];
+                
+                const snap = await db.collection('attendances')
+                    .where('tanggal','>=',firstDay)
+                    .where('tanggal','<=',today)
+                    .get();
+                
+                let hadir=0, izin=0, sakit=0, alpha=0;
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    if(d.status==='hadir') hadir++;
+                    else if(d.status==='izin') izin++;
+                    else if(d.status==='sakit') sakit++;
+                    else if(d.status==='alpha') alpha++;
+                });
+                
+                const total = hadir+izin+sakit+alpha;
+                const persentase = total>0 ? ((hadir/total)*100).toFixed(1) : 0;
+                
+                document.getElementById('rekapHadir').textContent = hadir;
+                document.getElementById('rekapIzin').textContent = izin;
+                document.getElementById('rekapSakit').textContent = sakit;
+                document.getElementById('rekapAlpha').textContent = alpha;
+                document.getElementById('rekapPersentase').textContent = persentase+'%';
+                document.getElementById('rekapProgressBar').style.width = persentase+'%';
+                
+                const ctx = document.getElementById('rekapChart').getContext('2d');
+                if (rekapChartInstance) rekapChartInstance.destroy();
+                rekapChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Hadir', 'Izin', 'Sakit', 'Alpha'],
+                        datasets: [{
+                            data: [hadir, izin, sakit, alpha],
+                            backgroundColor: ['#059669', '#d97706', '#7c3aed', '#dc2626'],
+                            borderWidth: 2,
+                            borderColor: document.documentElement.classList.contains('dark') ? '#1e293b' : '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: document.documentElement.classList.contains('dark') ? '#94a3b8' : '#64748b',
+                                    font: { family: 'Inter' }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+            } catch(e) { 
+                showToast('❌ Gagal memuat rekap','error'); 
+            }
         }
 
         // ==================== PENGAJUAN ====================
         async function loadPengajuan() {
-            try{
-                const snap=await db.collection('pengajuan_izin').orderBy('createdAt','desc').get();
-                const container=document.getElementById('pengajuanList');
-                if(snap.empty){ container.innerHTML='<p class="text-gray-500 text-center py-8">Tidak ada pengajuan</p>'; return; }
-                container.innerHTML='';
-                snap.forEach(doc=>{
-                    const p=doc.data();
-                    container.innerHTML+=`<div class="card flex justify-between items-center"><div><p class="font-medium">${p.namaAnggota}</p><p class="text-sm text-gray-500">${p.jenis.toUpperCase()} - ${p.tanggal}</p><p class="text-sm text-gray-400">${p.alasan}</p></div><div class="flex gap-2"><button onclick="approveIzin('${doc.id}')" class="btn-primary text-xs">Approve</button><button onclick="rejectIzin('${doc.id}')" class="btn-danger text-xs">Tolak</button></div></div>`;
+            try {
+                const snap = await db.collection('pengajuan_izin').orderBy('createdAt','desc').get();
+                const container = document.getElementById('pengajuanList');
+                if (snap.empty) {
+                    container.innerHTML = `
+                        <div class="card text-center py-12">
+                            <i data-lucide="inbox" class="w-12 h-12 text-gray-300 mx-auto mb-2"></i>
+                            <p class="text-gray-500">Tidak ada pengajuan izin</p>
+                        </div>`;
+                    lucide.createIcons();
+                    return;
+                }
+                container.innerHTML = '';
+                snap.forEach(doc => {
+                    const p = doc.data();
+                    const card = document.createElement('div');
+                    card.className = 'card flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3';
+                    card.innerHTML = `
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="badge ${p.jenis==='sakit'?'badge-purple':'badge-warning'}">${p.jenis.toUpperCase()}</span>
+                                <span class="text-xs text-gray-400">${p.tanggal}</span>
+                            </div>
+                            <p class="font-medium">${p.namaAnggota}</p>
+                            <p class="text-sm text-gray-500">${p.alasan}</p>
+                        </div>
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <button onclick="approveIzin('${doc.id}')" class="btn-success text-xs flex-1 sm:flex-none">
+                                <i data-lucide="check" class="w-4 h-4"></i> Approve
+                            </button>
+                            <button onclick="rejectIzin('${doc.id}')" class="btn-danger text-xs flex-1 sm:flex-none">
+                                <i data-lucide="x" class="w-4 h-4"></i> Tolak
+                            </button>
+                        </div>`;
+                    container.appendChild(card);
                 });
                 lucide.createIcons();
-            }catch(e){ console.error(e); }
+            } catch(e) { 
+                showToast('❌ Gagal memuat pengajuan','error'); 
+            }
         }
 
         async function approveIzin(id) {
-            try{
-                const doc=await db.collection('pengajuan_izin').doc(id).get();
-                const p=doc.data();
-                const now=new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
-                await db.collection('attendances').add({memberId:p.memberId,namaAnggota:p.namaAnggota,nomorAnggota:p.nomorAnggota,aktId:p.aktId,aktNama:p.aktNama,tanggal:p.tanggal,jam:now,status:p.jenis,keterangan:p.alasan,scanMethod:'pengajuan',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+            try {
+                const doc = await db.collection('pengajuan_izin').doc(id).get();
+                const p = doc.data();
+                const now = new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+                
+                const existingSnap = await db.collection('attendances')
+                    .where('memberId','==',p.memberId)
+                    .where('tanggal','==',p.tanggal)
+                    .get();
+                
+                if (!existingSnap.empty) {
+                    showToast('⚠️ Anggota sudah absen pada tanggal tersebut!','warning');
+                    await db.collection('pengajuan_izin').doc(id).delete();
+                    loadPengajuan();
+                    return;
+                }
+                
+                await db.collection('attendances').add({
+                    memberId: p.memberId,
+                    namaAnggota: p.namaAnggota,
+                    nomorAnggota: p.nomorAnggota,
+                    aktId: p.aktId,
+                    aktNama: p.aktNama,
+                    tanggal: p.tanggal,
+                    jam: now,
+                    status: p.jenis,
+                    keterangan: p.alasan,
+                    scanMethod: 'pengajuan',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
                 await db.collection('pengajuan_izin').doc(id).delete();
-                showToast('✅ Izin disetujui','success'); loadPengajuan();
-            }catch(e){ showToast('❌ Gagal approve','error'); }
+                showToast('✅ Izin disetujui dan dicatat sebagai absensi','success');
+                loadPengajuan();
+                loadRekap();
+            } catch(e) { 
+                showToast('❌ Gagal approve','error'); 
+            }
         }
 
         async function rejectIzin(id) {
-            try{
+            try {
                 await db.collection('pengajuan_izin').doc(id).delete();
-                showToast('❌ Izin ditolak','info'); loadPengajuan();
-            }catch(e){ showToast('❌ Gagal tolak','error'); }
+                showToast('❌ Izin ditolak','info');
+                loadPengajuan();
+            } catch(e) { 
+                showToast('❌ Gagal tolak','error'); 
+            }
         }
 
         // ==================== ANGGOTA FUNCTIONS ====================
         async function loadProfilAnggota() {
-            try{
-                const doc=await db.collection('members').doc(currentUser.memberId).get();
-                const m=doc.data();
-                document.getElementById('profilAnggotaContent').innerHTML=`<div class="flex items-center gap-4 mb-4"><div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-xl font-bold">${m.namaLengkap.charAt(0)}</div><div><h3 class="font-bold text-lg">${m.namaLengkap}</h3><p class="text-sm text-gray-500">${m.nomorAnggota} • ${m.aktNama}</p></div></div><div class="space-y-2 text-sm"><p><strong>Jenis Kelamin:</strong> ${m.jenisKelamin==='L'?'Laki-laki':'Perempuan'}</p><p><strong>Jabatan:</strong> ${m.jabatan||'-'}</p><p><strong>No HP:</strong> ${m.noHP||'-'}</p></div>`;
-            }catch(e){ console.error(e); }
+            try {
+                const doc = await db.collection('members').doc(currentUser.memberId).get();
+                if (!doc.exists) {
+                    document.getElementById('profilAnggotaContent').innerHTML = '<p class="text-gray-500">Data tidak ditemukan.</p>';
+                    return;
+                }
+                const m = doc.data();
+                document.getElementById('profilAnggotaContent').innerHTML = `
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                            ${m.namaLengkap ? m.namaLengkap.charAt(0) : 'A'}
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">${m.namaLengkap}</h3>
+                            <p class="text-sm text-gray-500">${m.nomorAnggota} • ${m.aktNama}</p>
+                            <p class="text-xs text-gray-400">${m.jabatan || 'Anggota'}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-800">
+                            <span class="text-gray-500">Jenis Kelamin</span>
+                            <span class="font-medium">${m.jenisKelamin==='L'?'Laki-laki':'Perempuan'}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-800">
+                            <span class="text-gray-500">Jabatan</span>
+                            <span class="font-medium">${m.jabatan||'-'}</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-gray-100 dark:border-gray-800">
+                            <span class="text-gray-500">No HP</span>
+                            <span class="font-medium">${m.noHP||'-'}</span>
+                        </div>
+                        <div class="flex justify-between py-2">
+                            <span class="text-gray-500">Status</span>
+                            <span class="badge badge-success">Aktif</span>
+                        </div>
+                    </div>`;
+                lucide.createIcons();
+            } catch(e) { 
+                showToast('❌ Gagal memuat profil','error'); 
+            }
         }
 
         async function loadRiwayatAnggota() {
-            try{
-                const snap=await db.collection('attendances').where('memberId','==',currentUser.memberId).orderBy('createdAt','desc').get();
-                const tbody=document.getElementById('riwayatAnggotaTable');
-                if(snap.empty){ tbody.innerHTML='<tr><td colspan="3" class="text-center py-8">Belum ada riwayat</td></tr>'; return; }
-                tbody.innerHTML='';
-                snap.forEach(doc=>{
-                    const a=doc.data();
-                    tbody.innerHTML+=`<tr><td>${a.tanggal}</td><td>${a.jam}</td><td><span class="badge ${a.status==='hadir'?'badge-success':'badge-warning'}">${a.status.toUpperCase()}</span></td></tr>`;
+            try {
+                const snap = await db.collection('attendances')
+                    .where('memberId','==',currentUser.memberId)
+                    .orderBy('createdAt','desc')
+                    .get();
+                const tbody = document.getElementById('riwayatAnggotaTable');
+                if (snap.empty) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-gray-500">Belum ada riwayat kehadiran</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = '';
+                snap.forEach(doc => {
+                    const a = doc.data();
+                    const statusBadge = a.status==='hadir' ? 'badge-success' : a.status==='izin' ? 'badge-warning' : a.status==='sakit' ? 'badge-purple' : 'badge-danger';
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${a.tanggal}</td>
+                            <td>${a.jam}</td>
+                            <td><span class="badge ${statusBadge}">${a.status.toUpperCase()}</span></td>
+                            <td class="text-sm text-gray-500">${a.keterangan||'-'}</td>
+                        </tr>`;
                 });
-            }catch(e){ console.error(e); }
+                lucide.createIcons();
+            } catch(e) { 
+                showToast('❌ Gagal memuat riwayat','error'); 
+            }
         }
 
         async function submitIzin() {
-            const tanggal=document.getElementById('izinTanggal').value;
-            const jenis=document.getElementById('izinJenis').value;
-            const alasan=document.getElementById('izinAlasan').value.trim();
-            if(!tanggal||!alasan){ showToast('❌ Lengkapi form!','error'); return; }
-            try{
-                const memberDoc=await db.collection('members').doc(currentUser.memberId).get();
-                const member=memberDoc.data();
-                await db.collection('pengajuan_izin').add({memberId:currentUser.memberId,namaAnggota:member.namaLengkap,nomorAnggota:member.nomorAnggota,aktId:member.aktId,aktNama:member.aktNama,tanggal,jenis,alasan,status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+            const tanggal = document.getElementById('izinTanggal').value;
+            const jenis = document.getElementById('izinJenis').value;
+            const alasan = document.getElementById('izinAlasan').value.trim();
+            if (!tanggal || !alasan) { showToast('❌ Lengkapi form!','error'); return; }
+            try {
+                const memberDoc = await db.collection('members').doc(currentUser.memberId).get();
+                const member = memberDoc.data();
+                
+                const existingSnap = await db.collection('pengajuan_izin')
+                    .where('memberId','==',currentUser.memberId)
+                    .where('tanggal','==',tanggal)
+                    .get();
+                
+                if (!existingSnap.empty) {
+                    showToast('⚠️ Anda sudah mengajukan izin untuk tanggal tersebut!','warning');
+                    return;
+                }
+                
+                await db.collection('pengajuan_izin').add({
+                    memberId: currentUser.memberId,
+                    namaAnggota: member.namaLengkap,
+                    nomorAnggota: member.nomorAnggota,
+                    aktId: member.aktId,
+                    aktNama: member.aktNama,
+                    tanggal,
+                    jenis,
+                    alasan,
+                    status: 'pending',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
                 showToast('✅ Pengajuan izin dikirim!','success');
-                document.getElementById('izinTanggal').value=''; document.getElementById('izinAlasan').value='';
-            }catch(e){ showToast('❌ Gagal kirim','error'); }
+                document.getElementById('izinTanggal').value = new Date().toISOString().split('T')[0];
+                document.getElementById('izinAlasan').value = '';
+            } catch(e) { 
+                showToast('❌ Gagal kirim pengajuan','error'); 
+            }
+        }
+
+        // ==================== UBAH PASSWORD ====================
+        async function changePassword() {
+            const oldPass = document.getElementById('oldPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+            
+            if (!oldPass || !newPass || !confirmPass) {
+                showToast('❌ Semua field wajib diisi!','error');
+                return;
+            }
+            if (newPass.length < 6) {
+                showToast('❌ Password baru minimal 6 karakter!','error');
+                return;
+            }
+            if (newPass !== confirmPass) {
+                showToast('❌ Konfirmasi password tidak cocok!','error');
+                return;
+            }
+            
+            try {
+                const docRef = db.collection('members').doc(currentUser.memberId);
+                const doc = await docRef.get();
+                if (!doc.exists) {
+                    showToast('❌ Data anggota tidak ditemukan!','error');
+                    return;
+                }
+                const memberData = doc.data();
+                
+                // Cek password lama (bisa default 123456)
+                if (memberData.password !== oldPass && !(oldPass === '123456' && (!memberData.password || memberData.password === '123456'))) {
+                    showToast('❌ Password lama salah!','error');
+                    return;
+                }
+                
+                await docRef.update({ password: newPass });
+                showToast('✅ Password berhasil diubah!','success');
+                document.getElementById('oldPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+            } catch(e) {
+                console.error(e);
+                showToast('❌ Gagal mengubah password','error');
+            }
         }
 
         // ==================== EXPORT ====================
         function updateExportRange() {
-            const periode=document.getElementById('exportPeriode').value;
-            document.getElementById('exportCustomRange').classList.toggle('hidden',periode!=='custom');
+            const periode = document.getElementById('exportPeriode').value;
+            document.getElementById('exportCustomRange').classList.toggle('hidden', periode !== 'custom');
         }
 
         async function loadExportData() {
             await loadAktOptions('exportAkt');
-            const now=new Date();
-            document.getElementById('exportStartDate').value=new Date(now.getFullYear(),now.getMonth(),now.getDate()-7).toISOString().split('T')[0];
-            document.getElementById('exportEndDate').value=now.toISOString().split('T')[0];
+            const now = new Date();
+            document.getElementById('exportStartDate').value = new Date(now.getFullYear(), now.getMonth(), now.getDate()-7).toISOString().split('T')[0];
+            document.getElementById('exportEndDate').value = now.toISOString().split('T')[0];
             updateExportRange();
             await updateExportPreview();
         }
 
         async function getExportDateRange() {
-            const periode=document.getElementById('exportPeriode').value;
-            const now=new Date();
-            let startDate,endDate;
-            if(periode==='mingguan'){ startDate=new Date(now.getFullYear(),now.getMonth(),now.getDate()-7); endDate=now; }
-            else if(periode==='bulanan'){ startDate=new Date(now.getFullYear(),now.getMonth(),1); endDate=now; }
-            else if(periode==='custom'){ startDate=new Date(document.getElementById('exportStartDate').value); endDate=new Date(document.getElementById('exportEndDate').value); }
-            startDate.setHours(0,0,0,0); endDate.setHours(23,59,59,999);
-            return { start:startDate.toISOString().split('T')[0], end:endDate.toISOString().split('T')[0] };
+            const periode = document.getElementById('exportPeriode').value;
+            const now = new Date();
+            let startDate, endDate;
+            
+            if (periode === 'mingguan') {
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()-7);
+                endDate = now;
+            } else if (periode === 'bulanan') {
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                endDate = now;
+            } else if (periode === 'custom') {
+                startDate = new Date(document.getElementById('exportStartDate').value);
+                endDate = new Date(document.getElementById('exportEndDate').value);
+            }
+            
+            startDate.setHours(0,0,0,0);
+            endDate.setHours(23,59,59,999);
+            
+            return {
+                start: startDate.toISOString().split('T')[0],
+                end: endDate.toISOString().split('T')[0]
+            };
         }
 
         async function fetchExportData() {
-            const range=await getExportDateRange();
-            const statusFilter=document.getElementById('exportStatus').value;
-            const aktFilter=document.getElementById('exportAkt').value;
-            let query=db.collection('attendances').where('tanggal','>=',range.start).where('tanggal','<=',range.end);
-            const snap=await query.orderBy('tanggal','desc').get();
-            let data=[];
-            snap.forEach(doc=>{ const d=doc.data(); if(statusFilter!=='semua'&&d.status!==statusFilter) return; if(aktFilter&&d.aktId!==aktFilter) return; data.push(d); });
+            const range = await getExportDateRange();
+            const statusFilter = document.getElementById('exportStatus').value;
+            const aktFilter = document.getElementById('exportAkt').value;
+            
+            let query = db.collection('attendances')
+                .where('tanggal','>=',range.start)
+                .where('tanggal','<=',range.end);
+            
+            const snap = await query.orderBy('tanggal','desc').get();
+            
+            let data = [];
+            snap.forEach(doc => {
+                const d = doc.data();
+                if (statusFilter !== 'semua' && d.status !== statusFilter) return;
+                if (aktFilter && d.aktId !== aktFilter) return;
+                data.push(d);
+            });
+            
             return data;
         }
 
         async function updateExportPreview() {
-            try{
-                const data=await fetchExportData();
-                const container=document.getElementById('exportPreview');
-                if(data.length===0){ container.innerHTML='<p class="text-gray-500 text-center py-8">Tidak ada data untuk filter ini</p>'; return; }
-                let html='<table><thead><tr><th>Tanggal</th><th>Nama</th><th>Akt</th><th>Jam</th><th>Status</th></tr></thead><tbody>';
-                data.forEach(d=>{ html+=`<tr><td>${d.tanggal}</td><td>${d.namaAnggota}</td><td>${d.aktNama}</td><td>${d.jam}</td><td><span class="badge ${d.status==='hadir'?'badge-success':d.status==='izin'?'badge-warning':d.status==='sakit'?'badge-purple':'badge-danger'}">${d.status.toUpperCase()}</span></td></tr>`; });
-                html+='</tbody></table>'; container.innerHTML=html; lucide.createIcons();
-            }catch(e){ console.error(e); showToast('❌ Gagal memuat preview','error'); }
+            try {
+                const data = await fetchExportData();
+                const container = document.getElementById('exportPreview');
+                
+                if (data.length === 0) {
+                    container.innerHTML = '<p class="text-gray-500 text-center py-8">Tidak ada data untuk filter ini</p>';
+                    return;
+                }
+                
+                let html = '<table><thead><tr><th>Tanggal</th><th>Nama</th><th>Akt</th><th>Jam</th><th>Status</th><th>Keterangan</th></tr></thead><tbody>';
+                data.forEach(d => {
+                    const statusBadge = d.status==='hadir' ? 'badge-success' : d.status==='izin' ? 'badge-warning' : d.status==='sakit' ? 'badge-purple' : 'badge-danger';
+                    html += `<tr><td>${d.tanggal}</td><td>${d.namaAnggota}</td><td>${d.aktNama}</td><td>${d.jam}</td><td><span class="badge ${statusBadge}">${d.status.toUpperCase()}</span></td><td>${d.keterangan||'-'}</td></tr>`;
+                });
+                html += '</tbody></table>';
+                container.innerHTML = html;
+                lucide.createIcons();
+            } catch(e) {
+                showToast('❌ Gagal memuat preview','error');
+            }
         }
 
         function exportToCSV() {
-            fetchExportData().then(data=>{
-                if(data.length===0){ showToast('❌ Tidak ada data','error'); return; }
-                let csv='Tanggal,Nama,Akt,Jam,Status,Keterangan\n';
-                data.forEach(d=>{ csv+=`${d.tanggal},${d.namaAnggota},${d.aktNama},${d.jam},${d.status},${d.keterangan||''}\n`; });
-                const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); saveAs(blob,`Rekap-Absensi-${Date.now()}.csv`);
+            fetchExportData().then(data => {
+                if (data.length === 0) { showToast('❌ Tidak ada data untuk diexport','error'); return; }
+                let csv = '\uFEFF';
+                csv += 'Tanggal,Nama,Akt,Jam,Status,Keterangan\n';
+                data.forEach(d => {
+                    csv += `${d.tanggal},"${d.namaAnggota}","${d.aktNama}",${d.jam},"${d.status}","${d.keterangan||''}"\n`;
+                });
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                saveAs(blob, `Rekap-Absensi-${Date.now()}.csv`);
                 showToast('✅ CSV diunduh!','success');
             });
         }
 
         function exportToExcel() {
-            fetchExportData().then(data=>{
-                if(data.length===0){ showToast('❌ Tidak ada data','error'); return; }
-                const wsData=data.map(d=>({'Tanggal':d.tanggal,'Nama':d.namaAnggota,'Akt':d.aktNama,'Jam':d.jam,'Status':d.status.toUpperCase(),'Keterangan':d.keterangan||''}));
-                const ws=XLSX.utils.json_to_sheet(wsData); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Rekap');
-                XLSX.writeFile(wb,`Rekap-Absensi-${Date.now()}.xlsx`);
+            fetchExportData().then(data => {
+                if (data.length === 0) { showToast('❌ Tidak ada data untuk diexport','error'); return; }
+                const wsData = data.map(d => ({
+                    'Tanggal': d.tanggal,
+                    'Nama': d.namaAnggota,
+                    'Akt': d.aktNama,
+                    'Jam': d.jam,
+                    'Status': d.status.toUpperCase(),
+                    'Keterangan': d.keterangan || ''
+                }));
+                const ws = XLSX.utils.json_to_sheet(wsData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Rekap Absensi');
+                XLSX.writeFile(wb, `Rekap-Absensi-${Date.now()}.xlsx`);
                 showToast('✅ Excel diunduh!','success');
+            }).catch(e => {
+                showToast('❌ Gagal export Excel','error');
             });
         }
 
         function exportToPDF() {
-            fetchExportData().then(data=>{
-                if(data.length===0){ showToast('❌ Tidak ada data','error'); return; }
-                const { jsPDF } = window.jspdf; const doc=new jsPDF();
-                doc.setFontSize(16); doc.text('Rekap Absensi Paskibra',14,20);
-                doc.setFontSize(10); doc.text(`Periode: ${document.getElementById('exportStartDate').value||'-'} s/d ${document.getElementById('exportEndDate').value||'-'}`,14,30);
-                doc.text(`Jumlah data: ${data.length}`,14,38);
-                let y=50; doc.setFontSize(8);
-                doc.text('No',14,y); doc.text('Tanggal',25,y); doc.text('Nama',50,y); doc.text('Akt',100,y); doc.text('Jam',120,y); doc.text('Status',140,y); y+=5;
-                data.forEach((d,i)=>{ if(y>280){ doc.addPage(); y=20; } doc.text(String(i+1),14,y); doc.text(d.tanggal||'-',25,y); doc.text(d.namaAnggota||'-',50,y); doc.text(d.aktNama||'-',100,y); doc.text(d.jam||'-',120,y); doc.text(d.status.toUpperCase(),140,y); y+=5; });
+            fetchExportData().then(data => {
+                if (data.length === 0) { showToast('❌ Tidak ada data untuk diexport','error'); return; }
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                doc.setFontSize(16);
+                doc.text('Rekap Absensi Paskibra', 14, 20);
+                doc.setFontSize(10);
+                doc.text(`Periode: ${document.getElementById('exportStartDate').value||'-'} s/d ${document.getElementById('exportEndDate').value||'-'}`, 14, 30);
+                doc.text(`Jumlah data: ${data.length}`, 14, 38);
+                doc.text(`Dicetak: ${new Date().toLocaleString('id-ID')}`, 14, 46);
+                
+                const tableData = data.map((d, i) => [
+                    i+1,
+                    d.tanggal,
+                    d.namaAnggota,
+                    d.aktNama,
+                    d.jam,
+                    d.status.toUpperCase(),
+                    d.keterangan || '-'
+                ]);
+                
+                doc.autoTable({
+                    startY: 55,
+                    head: [['No', 'Tanggal', 'Nama', 'Akt', 'Jam', 'Status', 'Keterangan']],
+                    body: tableData,
+                    styles: { font: 'helvetica', fontSize: 8, cellPadding: 2 },
+                    headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
+                    alternateRowStyles: { fillColor: [245, 247, 250] }
+                });
+                
                 doc.save(`Rekap-Absensi-${Date.now()}.pdf`);
                 showToast('✅ PDF diunduh!','success');
+            }).catch(e => {
+                showToast('❌ Gagal export PDF','error');
             });
         }
 
         // ==================== UTILS ====================
-        function closeModal(id){ document.getElementById(id).classList.remove('active'); }
-        function toggleMobileMenu(){ document.getElementById('mobileMenu').classList.toggle('hidden'); }
-        function toggleDarkMode(){ isDarkMode=!isDarkMode; document.documentElement.classList.toggle('dark',isDarkMode); localStorage.setItem('darkMode',isDarkMode?'1':'0'); updateDarkModeIcons(); }
-        function updateDarkModeIcons(){ const icon=isDarkMode?'sun':'moon'; const el=document.getElementById('darkIcon'); if(el) el.setAttribute('data-lucide',icon); lucide.createIcons(); }
-        function showToast(message,type='info'){
-            const container=document.getElementById('toastContainer'); const toast=document.createElement('div');
-            toast.className=`toast toast-${type}`; toast.innerHTML=message; container.appendChild(toast);
-            setTimeout(()=>{ toast.style.opacity='0'; toast.style.transition='opacity 0.3s'; setTimeout(()=>toast.remove(),300); },3000);
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function toggleMobileMenu() { document.getElementById('mobileMenu').classList.toggle('hidden'); }
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.documentElement.classList.toggle('dark', isDarkMode);
+            localStorage.setItem('darkMode', isDarkMode ? '1' : '0');
+            const icon = document.getElementById('darkIcon');
+            if (icon) icon.setAttribute('data-lucide', isDarkMode ? 'sun' : 'moon');
+            if (document.getElementById('page-rekap').classList.contains('active')) loadRekap();
+            lucide.createIcons();
         }
-        document.addEventListener('click',(e)=>{ if(e.target.classList.contains('modal-overlay')) e.target.classList.remove('active'); });
-        document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') document.querySelectorAll('.modal-overlay.active').forEach(m=>m.classList.remove('active')); });
+        
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
 
-        console.log('🚀 Paskibra Digital System Ready!');
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('active');
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+                if (!document.getElementById('mobileMenu').classList.contains('hidden')) toggleMobileMenu();
+            }
+        });
+
+        console.log('✅ Paskibra Digital System Ready!');
     </script>
 </body>
 </html>
