@@ -1282,25 +1282,30 @@
             lucide.createIcons();
         }
 
-        // ==================== NAVIGATION ====================
+        // ==================== NAVIGATION (FIXED) ====================
         function navigateTo(page) {
-            const adminPages = ['akts','members','qr-generator','scan','manual-absent','attendance','rekap','pengajuan','export','kas'];
-            const sekretarisPages = ['scan','manual-absent','attendance','rekap','pengajuan','export'];
-            const bendaharaPages = ['kas'];
-            const anggotaPages = ['profil-anggota','riwayat-anggota','izin-anggota','ubah-password'];
+            // Halaman khusus admin
+            const adminOnlyPages = ['akts', 'members', 'qr-generator'];
+            // Halaman absensi (admin & sekretaris)
+            const absensiPages = ['scan', 'manual-absent', 'attendance', 'rekap', 'pengajuan', 'export'];
+            // Halaman kas (admin & bendahara)
+            const kasPages = ['kas'];
+            // Halaman anggota
+            const anggotaPages = ['profil-anggota', 'riwayat-anggota', 'izin-anggota', 'ubah-password'];
             
-            if (adminPages.includes(page) && (!currentUser || currentUser.role !== 'admin')) {
+            // Cek akses berdasarkan role
+            if (adminOnlyPages.includes(page) && (!currentUser || currentUser.role !== 'admin')) {
                 showToast('🔒 Login sebagai admin diperlukan', 'warning');
                 showLoginModal();
                 return;
             }
-            if (sekretarisPages.includes(page) && (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'sekretaris'))) {
-                showToast('🔒 Login sebagai sekretaris atau admin diperlukan', 'warning');
+            if (absensiPages.includes(page) && (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'sekretaris'))) {
+                showToast('🔒 Login sebagai admin atau sekretaris diperlukan', 'warning');
                 showLoginModal();
                 return;
             }
-            if (bendaharaPages.includes(page) && (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'bendahara'))) {
-                showToast('🔒 Login sebagai bendahara atau admin diperlukan', 'warning');
+            if (kasPages.includes(page) && (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'bendahara'))) {
+                showToast('🔒 Login sebagai admin atau bendahara diperlukan', 'warning');
                 showLoginModal();
                 return;
             }
@@ -1310,15 +1315,18 @@
                 return;
             }
             
+            // Tampilkan halaman
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const target = document.getElementById(`page-${page}`);
             if (target) target.classList.add('active');
             
+            // Update sidebar active
             document.querySelectorAll('.sidebar-link').forEach(l => {
                 l.classList.remove('active');
                 if (l.getAttribute('data-page') === page) l.classList.add('active');
             });
             
+            // Panggil loader
             const loaders = {
                 'dashboard': loadDashboard,
                 'akts': loadAkts,
