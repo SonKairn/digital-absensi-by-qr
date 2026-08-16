@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Sistem Absensi & Manajemen</title>
+    <title>Paskibra Digital - Sistem Absensi & Manajemen</title>
     
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -327,17 +327,23 @@
     <div id="loginModal" class="modal-overlay">
         <div class="modal-content">
             <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold shadow-lg">( ━ )</div>
-                <h3 class="text-xl font-bold">Brigpas Negast</h3>
+                <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold shadow-lg">P</div>
+                <h3 class="text-xl font-bold">Paskibra Digital</h3>
                 <p class="text-sm text-gray-500 mt-1">Masuk untuk mengakses sistem</p>
             </div>
             
-            <div class="flex gap-2 mb-4">
-                <button onclick="setLoginRole('admin')" id="btnRoleAdmin" class="btn-secondary flex-1 justify-center py-2 text-sm active" style="border-color:#2563EB;color:#2563EB;">
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <button onclick="setLoginRole('admin')" id="btnRoleAdmin" class="btn-secondary justify-center py-2 text-sm active" style="border-color:#2563EB;color:#2563EB;">
                     <i data-lucide="shield" class="w-4 h-4"></i> Admin
                 </button>
-                <button onclick="setLoginRole('anggota')" id="btnRoleAnggota" class="btn-secondary flex-1 justify-center py-2 text-sm">
+                <button onclick="setLoginRole('anggota')" id="btnRoleAnggota" class="btn-secondary justify-center py-2 text-sm">
                     <i data-lucide="user" class="w-4 h-4"></i> Anggota
+                </button>
+                <button onclick="setLoginRole('sekretaris')" id="btnRoleSekretaris" class="btn-secondary justify-center py-2 text-sm">
+                    <i data-lucide="clipboard-list" class="w-4 h-4"></i> Sekretaris
+                </button>
+                <button onclick="setLoginRole('bendahara')" id="btnRoleBendahara" class="btn-secondary justify-center py-2 text-sm">
+                    <i data-lucide="wallet" class="w-4 h-4"></i> Bendahara
                 </button>
             </div>
             
@@ -356,7 +362,8 @@
             </form>
             <div id="loginError" class="hidden mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm border border-red-200"></div>
             <div class="mt-4 text-center">
-                <p class="text-xs text-gray-400">Default password anggota: <strong>123456</strong> (segera ganti setelah login)</p>
+                <p class="text-xs text-gray-400">Default password anggota: <strong>123456</strong></p>
+                <p class="text-xs text-gray-400 mt-1">Admin: <strong>Dewan</strong> / <strong>2026/2027</strong></p>
             </div>
         </div>
     </div>
@@ -368,9 +375,9 @@
         <aside class="hidden lg:flex flex-col w-72 sidebar h-screen sticky top-0 z-30">
             <div class="p-6 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow">( ━ )</div>
+                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow">P</div>
                     <div>
-                        <h2 class="font-semibold">Absensi Digital</h2>
+                        <h2 class="font-semibold">Paskibra Digital</h2>
                         <p class="text-xs text-gray-500" id="sidebarRole">Guest Mode</p>
                     </div>
                 </div>
@@ -411,6 +418,40 @@
                     </button>
                     <button onclick="navigateTo('export')" class="sidebar-link" data-page="export">
                         <i data-lucide="download" class="w-5 h-5"></i> Export Rekap
+                    </button>
+                    
+                    <div class="pt-3 pb-1 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Keuangan</div>
+                    <button onclick="navigateTo('kas')" class="sidebar-link" data-page="kas">
+                        <i data-lucide="wallet" class="w-5 h-5"></i> Kas & Keuangan
+                    </button>
+                </div>
+                
+                <div id="menuSekretaris" class="hidden space-y-1">
+                    <div class="pt-3 pb-1 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Absensi</div>
+                    <button onclick="navigateTo('scan')" class="sidebar-link" data-page="scan">
+                        <i data-lucide="scan" class="w-5 h-5"></i> Scan Absensi
+                    </button>
+                    <button onclick="navigateTo('manual-absent')" class="sidebar-link" data-page="manual-absent">
+                        <i data-lucide="clipboard-edit" class="w-5 h-5"></i> Absensi Manual
+                    </button>
+                    <button onclick="navigateTo('attendance')" class="sidebar-link" data-page="attendance">
+                        <i data-lucide="history" class="w-5 h-5"></i> Riwayat Absensi
+                    </button>
+                    <button onclick="navigateTo('rekap')" class="sidebar-link" data-page="rekap">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5"></i> Rekap
+                    </button>
+                    <button onclick="navigateTo('pengajuan')" class="sidebar-link" data-page="pengajuan">
+                        <i data-lucide="inbox" class="w-5 h-5"></i> Pengajuan Izin
+                    </button>
+                    <button onclick="navigateTo('export')" class="sidebar-link" data-page="export">
+                        <i data-lucide="download" class="w-5 h-5"></i> Export Rekap
+                    </button>
+                </div>
+                
+                <div id="menuBendahara" class="hidden space-y-1">
+                    <div class="pt-3 pb-1 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Keuangan</div>
+                    <button onclick="navigateTo('kas')" class="sidebar-link" data-page="kas">
+                        <i data-lucide="wallet" class="w-5 h-5"></i> Kas & Keuangan
                     </button>
                 </div>
                 
@@ -752,6 +793,51 @@
                     </div>
                 </div>
 
+                <!-- ========== KAS / KEUANGAN ========== -->
+                <div id="page-kas" class="page">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 no-print">
+                        <div>
+                            <h2 class="text-2xl font-bold">Kas & Keuangan</h2>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Kelola pemasukan dan pengeluaran</p>
+                        </div>
+                        <button onclick="showAddKasModal()" class="btn-primary">
+                            <i data-lucide="plus" class="w-5 h-5"></i> Tambah Transaksi
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                        <div class="card text-center">
+                            <p class="text-sm text-gray-500">Saldo Sekarang</p>
+                            <p class="text-2xl font-bold text-blue-600" id="kasSaldo">Rp 0</p>
+                        </div>
+                        <div class="card text-center">
+                            <p class="text-sm text-gray-500">Total Pemasukan</p>
+                            <p class="text-2xl font-bold text-green-600" id="kasPemasukan">Rp 0</p>
+                        </div>
+                        <div class="card text-center">
+                            <p class="text-sm text-gray-500">Total Pengeluaran</p>
+                            <p class="text-2xl font-bold text-red-600" id="kasPengeluaran">Rp 0</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card p-0 overflow-hidden">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Jenis</th>
+                                        <th>Jumlah</th>
+                                        <th>Keterangan</th>
+                                        <th class="no-print">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="kasTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- ========== PROFIL ANGGOTA ========== -->
                 <div id="page-profil-anggota" class="page">
                     <h2 class="text-2xl font-bold mb-6">Profil Saya</h2>
@@ -861,6 +947,33 @@
         </div>
     </div>
 
+    <div id="kasModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Tambah Transaksi Kas</h3>
+                <button onclick="closeModal('kasModal')" class="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label>Jenis Transaksi *</label>
+                    <select id="kasJenis">
+                        <option value="masuk">Pemasukan</option>
+                        <option value="keluar">Pengeluaran</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Jumlah (Rp) *</label>
+                    <input type="number" id="kasJumlah" placeholder="Contoh: 50000" min="0">
+                </div>
+                <div>
+                    <label>Keterangan</label>
+                    <textarea id="kasKeterangan" rows="2" placeholder="Contoh: Iuran bulanan"></textarea>
+                </div>
+                <button onclick="saveKas()" class="btn-primary w-full justify-center">Simpan Transaksi</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ==================== STATE ====================
         let currentUser = null;
@@ -870,8 +983,9 @@
         let loginRole = 'admin';
         let rekapChartInstance = null;
 
-        // Hanya admin Dewan, tanpa role superadmin/pembina
         const ADMIN_ACCOUNT = { username: 'Dewan', password: '2026/2027', role: 'admin', nama: 'Dewan (Ketua)' };
+        const SEKRETARIS_ACCOUNT = { username: 'Sekre', password: '2026/2027', role: 'sekretaris', nama: 'Sekretaris' };
+        const BENDAHARA_ACCOUNT = { username: 'Bendahara', password: '2026/2027', role: 'bendahara', nama: 'Bendahara' };
 
         // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', () => {
@@ -911,9 +1025,13 @@
         // ==================== UI UPDATE ====================
         function updateUI() {
             const isAdmin = currentUser && currentUser.role === 'admin';
+            const isSekretaris = currentUser && currentUser.role === 'sekretaris';
+            const isBendahara = currentUser && currentUser.role === 'bendahara';
             const isAnggota = currentUser && currentUser.role === 'anggota';
             
             document.getElementById('menuAdmin').classList.toggle('hidden', !isAdmin);
+            document.getElementById('menuSekretaris').classList.toggle('hidden', !isSekretaris);
+            document.getElementById('menuBendahara').classList.toggle('hidden', !isBendahara);
             document.getElementById('menuAnggota').classList.toggle('hidden', !isAnggota);
             document.getElementById('sidebarGuest').classList.toggle('hidden', !!currentUser);
             document.getElementById('sidebarUser').classList.toggle('hidden', !currentUser);
@@ -925,7 +1043,7 @@
             
             if (currentUser) {
                 const displayName = currentUser.nama || currentUser.username || 'User';
-                const roleText = currentUser.role === 'admin' ? 'Admin' : 'Anggota';
+                const roleText = currentUser.role === 'admin' ? 'Pembina/Ketua' : currentUser.role === 'sekretaris' ? 'Sekretaris' : currentUser.role === 'bendahara' ? 'Bendahara' : 'Anggota';
                 
                 document.getElementById('sidebarUsername').textContent = displayName;
                 document.getElementById('sidebarUserRole').textContent = roleText;
@@ -957,7 +1075,21 @@
                     { id: 'attendance', label: 'Riwayat Absensi', icon: 'history' },
                     { id: 'rekap', label: 'Rekap', icon: 'bar-chart-3' },
                     { id: 'pengajuan', label: 'Pengajuan Izin', icon: 'inbox' },
+                    { id: 'export', label: 'Export Rekap', icon: 'download' },
+                    { id: 'kas', label: 'Kas & Keuangan', icon: 'wallet' }
+                );
+            } else if (currentUser && currentUser.role === 'sekretaris') {
+                items.push(
+                    { id: 'scan', label: 'Scan Absensi', icon: 'scan' },
+                    { id: 'manual-absent', label: 'Absensi Manual', icon: 'clipboard-edit' },
+                    { id: 'attendance', label: 'Riwayat Absensi', icon: 'history' },
+                    { id: 'rekap', label: 'Rekap', icon: 'bar-chart-3' },
+                    { id: 'pengajuan', label: 'Pengajuan Izin', icon: 'inbox' },
                     { id: 'export', label: 'Export Rekap', icon: 'download' }
+                );
+            } else if (currentUser && currentUser.role === 'bendahara') {
+                items.push(
+                    { id: 'kas', label: 'Kas & Keuangan', icon: 'wallet' }
                 );
             } else if (currentUser && currentUser.role === 'anggota') {
                 items.push(
@@ -979,23 +1111,38 @@
         // ==================== LOGIN ====================
         function setLoginRole(role) {
             loginRole = role;
-            const btnAdmin = document.getElementById('btnRoleAdmin');
-            const btnAnggota = document.getElementById('btnRoleAnggota');
+            const buttons = {
+                admin: document.getElementById('btnRoleAdmin'),
+                anggota: document.getElementById('btnRoleAnggota'),
+                sekretaris: document.getElementById('btnRoleSekretaris'),
+                bendahara: document.getElementById('btnRoleBendahara')
+            };
             
-            if (role === 'admin') {
-                btnAdmin.style.borderColor = '#2563EB';
-                btnAdmin.style.color = '#2563EB';
-                btnAnggota.style.borderColor = '';
-                btnAnggota.style.color = '';
-            } else {
-                btnAnggota.style.borderColor = '#2563EB';
-                btnAnggota.style.color = '#2563EB';
-                btnAdmin.style.borderColor = '';
-                btnAdmin.style.color = '';
+            Object.values(buttons).forEach(btn => {
+                btn.style.borderColor = '';
+                btn.style.color = '';
+            });
+            
+            if (buttons[role]) {
+                buttons[role].style.borderColor = '#2563EB';
+                buttons[role].style.color = '#2563EB';
             }
             
-            document.getElementById('loginLabel').textContent = role === 'admin' ? 'Username' : 'Nomor Anggota';
-            document.getElementById('loginUsername').placeholder = role === 'admin' ? 'Username admin' : 'Contoh: A-001';
+            const labelMap = {
+                admin: 'Username',
+                anggota: 'Nomor Anggota',
+                sekretaris: 'Username',
+                bendahara: 'Username'
+            };
+            const placeholderMap = {
+                admin: 'Username admin',
+                anggota: 'Contoh: A-001',
+                sekretaris: 'Username sekretaris',
+                bendahara: 'Username bendahara'
+            };
+            
+            document.getElementById('loginLabel').textContent = labelMap[role] || 'Username';
+            document.getElementById('loginUsername').placeholder = placeholderMap[role] || 'Masukkan username';
             document.getElementById('loginError').classList.add('hidden');
         }
 
@@ -1014,6 +1161,7 @@
             const errorDiv = document.getElementById('loginError');
             errorDiv.classList.add('hidden');
             
+            // Role-based login
             if (loginRole === 'admin') {
                 if (username === ADMIN_ACCOUNT.username && password === ADMIN_ACCOUNT.password) {
                     currentUser = { username: ADMIN_ACCOUNT.username, role: 'admin', nama: ADMIN_ACCOUNT.nama };
@@ -1026,13 +1174,36 @@
                     errorDiv.textContent = '❌ Username atau password salah!';
                     errorDiv.classList.remove('hidden');
                 }
-            } else {
-                // ANGGOTA LOGIN
+            } else if (loginRole === 'sekretaris') {
+                if (username === SEKRETARIS_ACCOUNT.username && password === SEKRETARIS_ACCOUNT.password) {
+                    currentUser = { username: SEKRETARIS_ACCOUNT.username, role: 'sekretaris', nama: SEKRETARIS_ACCOUNT.nama };
+                    localStorage.setItem('paskibra_user', JSON.stringify(currentUser));
+                    updateUI();
+                    closeModal('loginModal');
+                    showToast('✅ Login berhasil! Selamat datang ' + SEKRETARIS_ACCOUNT.nama, 'success');
+                    navigateTo('dashboard');
+                } else {
+                    errorDiv.textContent = '❌ Username atau password salah!';
+                    errorDiv.classList.remove('hidden');
+                }
+            } else if (loginRole === 'bendahara') {
+                if (username === BENDAHARA_ACCOUNT.username && password === BENDAHARA_ACCOUNT.password) {
+                    currentUser = { username: BENDAHARA_ACCOUNT.username, role: 'bendahara', nama: BENDAHARA_ACCOUNT.nama };
+                    localStorage.setItem('paskibra_user', JSON.stringify(currentUser));
+                    updateUI();
+                    closeModal('loginModal');
+                    showToast('✅ Login berhasil! Selamat datang ' + BENDAHARA_ACCOUNT.nama, 'success');
+                    navigateTo('dashboard');
+                } else {
+                    errorDiv.textContent = '❌ Username atau password salah!';
+                    errorDiv.classList.remove('hidden');
+                }
+            } else if (loginRole === 'anggota') {
                 try {
                     let memberDoc = null;
                     let memberData = null;
                     
-                    // Approach 1: Query by nomorAnggota AND password
+                    // Approach 1
                     try {
                         const snap = await db.collection('members')
                             .where('nomorAnggota', '==', username)
@@ -1044,7 +1215,7 @@
                         }
                     } catch(e) {}
                     
-                    // Approach 2: Query by nomorAnggota only
+                    // Approach 2
                     if (!memberDoc) {
                         try {
                             const snap2 = await db.collection('members')
@@ -1061,7 +1232,7 @@
                         } catch(e) {}
                     }
                     
-                    // Approach 3: Get all members and find manually
+                    // Approach 3
                     if (!memberDoc) {
                         try {
                             const allMembers = await db.collection('members').get();
@@ -1113,7 +1284,9 @@
 
         // ==================== NAVIGATION ====================
         function navigateTo(page) {
-            const adminPages = ['akts','members','qr-generator','scan','manual-absent','attendance','rekap','pengajuan','export'];
+            const adminPages = ['akts','members','qr-generator','scan','manual-absent','attendance','rekap','pengajuan','export','kas'];
+            const sekretarisPages = ['scan','manual-absent','attendance','rekap','pengajuan','export'];
+            const bendaharaPages = ['kas'];
             const anggotaPages = ['profil-anggota','riwayat-anggota','izin-anggota','ubah-password'];
             
             if (adminPages.includes(page) && (!currentUser || currentUser.role !== 'admin')) {
@@ -1121,7 +1294,16 @@
                 showLoginModal();
                 return;
             }
-            
+            if (sekretarisPages.includes(page) && (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'sekretaris'))) {
+                showToast('🔒 Login sebagai sekretaris atau admin diperlukan', 'warning');
+                showLoginModal();
+                return;
+            }
+            if (bendaharaPages.includes(page) && (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'bendahara'))) {
+                showToast('🔒 Login sebagai bendahara atau admin diperlukan', 'warning');
+                showLoginModal();
+                return;
+            }
             if (anggotaPages.includes(page) && (!currentUser || currentUser.role !== 'anggota')) {
                 showToast('🔒 Login sebagai anggota diperlukan', 'warning');
                 showLoginModal();
@@ -1148,6 +1330,7 @@
                 'rekap': loadRekap,
                 'pengajuan': loadPengajuan,
                 'export': loadExportData,
+                'kas': loadKas,
                 'profil-anggota': loadProfilAnggota,
                 'riwayat-anggota': loadRiwayatAnggota,
                 'izin-anggota': () => {},
@@ -1222,15 +1405,71 @@
                     console.error(e);
                     container.innerHTML = '<p class="text-gray-500">Gagal memuat data.</p>';
                 }
+            } else if (currentUser && currentUser.role === 'bendahara') {
+                // Dashboard bendahara - fokus ke kas
+                try {
+                    const kasSnap = await db.collection('kas').orderBy('createdAt','desc').get();
+                    let saldo = 0, pemasukan = 0, pengeluaran = 0;
+                    kasSnap.forEach(doc => {
+                        const d = doc.data();
+                        if (d.jenis === 'masuk') {
+                            pemasukan += d.jumlah;
+                            saldo += d.jumlah;
+                        } else {
+                            pengeluaran += d.jumlah;
+                            saldo -= d.jumlah;
+                        }
+                    });
+                    
+                    container.innerHTML = `
+                        <h1 class="text-2xl font-bold mb-6">Dashboard Bendahara</h1>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                            <div class="card text-center">
+                                <p class="text-sm text-gray-500">Saldo Sekarang</p>
+                                <p class="text-2xl font-bold text-blue-600">Rp ${saldo.toLocaleString('id-ID')}</p>
+                            </div>
+                            <div class="card text-center">
+                                <p class="text-sm text-gray-500">Pemasukan</p>
+                                <p class="text-2xl font-bold text-green-600">Rp ${pemasukan.toLocaleString('id-ID')}</p>
+                            </div>
+                            <div class="card text-center">
+                                <p class="text-sm text-gray-500">Pengeluaran</p>
+                                <p class="text-2xl font-bold text-red-600">Rp ${pengeluaran.toLocaleString('id-ID')}</p>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h3 class="font-semibold mb-4">Transaksi Terakhir</h3>
+                            <div id="recentKas"></div>
+                            <button onclick="navigateTo('kas')" class="btn-secondary mt-4 w-full justify-center">
+                                <i data-lucide="wallet" class="w-4 h-4"></i> Kelola Kas
+                            </button>
+                        </div>`;
+                    
+                    const recent = [];
+                    kasSnap.forEach(doc => {
+                        if (recent.length < 5) recent.push({ id: doc.id, ...doc.data() });
+                    });
+                    const kasHtml = recent.length > 0 ? recent.map(k => `
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
+                            <span class="font-medium">${k.keterangan || 'Transaksi'}</span>
+                            <span class="${k.jenis === 'masuk' ? 'text-green-600' : 'text-red-600'} font-semibold">${k.jenis === 'masuk' ? '+' : '-'} Rp ${k.jumlah.toLocaleString('id-ID')}</span>
+                        </div>
+                    `).join('') : '<p class="text-gray-400 text-center py-4">Belum ada transaksi</p>';
+                    document.getElementById('recentKas').innerHTML = kasHtml;
+                } catch(e) {
+                    console.error(e);
+                    container.innerHTML = '<p class="text-gray-500">Gagal memuat data kas.</p>';
+                }
             } else {
-                // Admin Dashboard - lebih berisi
+                // Admin & Sekretaris dashboard - statistik absensi
                 const today = new Date().toISOString().split('T')[0];
                 try {
-                    const [membersSnap, attTodaySnap, aktsSnap, pengajuanSnap] = await Promise.all([
+                    const [membersSnap, attTodaySnap, aktsSnap, pengajuanSnap, kasSnap] = await Promise.all([
                         db.collection('members').get(),
                         db.collection('attendances').where('tanggal','==',today).get(),
                         db.collection('akts').get(),
-                        db.collection('pengajuan_izin').where('status','==','pending').get()
+                        db.collection('pengajuan_izin').where('status','==','pending').get(),
+                        db.collection('kas').get()
                     ]);
                     
                     let hadirToday=0, izinToday=0, sakitToday=0, alphaToday=0;
@@ -1242,14 +1481,19 @@
                         else if(d.status==='alpha') alphaToday++;
                     });
                     
-                    // Persentase kehadiran hari ini
                     const totalHadirToday = hadirToday + izinToday + sakitToday + alphaToday;
                     const persentaseToday = totalHadirToday > 0 ? ((hadirToday / totalHadirToday) * 100).toFixed(1) : 0;
                     
-                    const greeting = new Date().getHours() < 12 ? 'Selamat Pagi' : new Date().getHours() < 18 ? 'Selamat Siang' : 'Selamat Malam';
-                    const userName = currentUser ? currentUser.nama : 'Negaster';
+                    // Kas summary
+                    let saldoKas = 0;
+                    kasSnap.forEach(doc => {
+                        const d = doc.data();
+                        saldoKas += d.jenis === 'masuk' ? d.jumlah : -d.jumlah;
+                    });
                     
-                    // Ambil aktivitas terbaru (5)
+                    const greeting = new Date().getHours() < 12 ? 'Selamat Pagi' : new Date().getHours() < 18 ? 'Selamat Siang' : 'Selamat Malam';
+                    const userName = currentUser ? currentUser.nama : 'Admin';
+                    
                     const attRecentSnap = await db.collection('attendances')
                         .orderBy('createdAt','desc')
                         .limit(5)
@@ -1265,7 +1509,6 @@
                             </div>
                         </div>
                         
-                        <!-- Statistik Utama -->
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                             <div class="card">
                                 <div class="flex items-center justify-between">
@@ -1297,7 +1540,6 @@
                             </div>
                         </div>
                         
-                        <!-- Statistik Tambahan -->
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                             <div class="card">
                                 <p class="text-sm text-gray-500">Total Akt</p>
@@ -1308,16 +1550,15 @@
                                 <p class="text-2xl font-bold mt-1 text-orange-600">${pengajuanSnap.size}</p>
                             </div>
                             <div class="card">
-                                <p class="text-sm text-gray-500">Persentase Hadir Hari Ini</p>
+                                <p class="text-sm text-gray-500">Persentase Hadir</p>
                                 <p class="text-2xl font-bold mt-1 text-blue-600">${persentaseToday}%</p>
                             </div>
                             <div class="card">
-                                <p class="text-sm text-gray-500">Total Absensi Hari Ini</p>
-                                <p class="text-2xl font-bold mt-1">${totalHadirToday}</p>
+                                <p class="text-sm text-gray-500">Saldo Kas</p>
+                                <p class="text-2xl font-bold mt-1 text-emerald-600">Rp ${saldoKas.toLocaleString('id-ID')}</p>
                             </div>
                         </div>
                         
-                        <!-- Aktivitas Terbaru -->
                         <div class="card">
                             <div class="flex justify-between items-center mb-4">
                                 <h3 class="font-semibold">Aktivitas Terbaru</h3>
@@ -1553,7 +1794,7 @@
                     const allMembers = await db.collection('members').get();
                     const count = allMembers.size + 1;
                     data.nomorAnggota = `A-${String(count).padStart(3,'0')}`;
-                    data.password = '123456'; // Default, tidak ditampilkan di UI
+                    data.password = '123456';
                     data.qrCodeId = crypto.randomUUID();
                     data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
                     await db.collection('members').add(data);
@@ -1563,6 +1804,7 @@
                 loadMembers();
                 loadDashboard();
             } catch(e) { 
+                console.error(e);
                 showToast('❌ Gagal menyimpan','error'); 
             }
         }
@@ -1657,6 +1899,7 @@
                 lucide.createIcons();
                 showToast(`✅ QR Code untuk ${membersSnap.size} anggota berhasil dibuat`, 'success');
             } catch(e) {
+                console.error(e);
                 showToast('❌ Gagal generate QR', 'error');
             }
         }
@@ -1739,6 +1982,7 @@
                 saveAs(content, `QR-Codes-${Date.now()}.zip`);
                 showToast('✅ ZIP diunduh!', 'success');
             } catch(e) { 
+                console.error(e);
                 showToast('❌ Gagal membuat ZIP', 'error'); 
             }
         }
@@ -1764,7 +2008,8 @@
                 document.getElementById('scanStatus').textContent = 'Scanning...';
                 document.getElementById('scanResult').classList.add('hidden');
             } catch(e) { 
-                showToast('❌ Gagal akses kamera','error'); 
+                console.error(e);
+                showToast('❌ Gagal akses kamera. Pastikan kamera diizinkan.', 'error'); 
             }
         }
 
@@ -1813,6 +2058,7 @@
                 lucide.createIcons();
                 setTimeout(() => document.getElementById('scanResult').classList.add('hidden'), 5000);
             } catch(e) { 
+                console.error(e);
                 showToast('❌ Gagal proses absensi','error'); 
             }
         }
@@ -1871,6 +2117,7 @@
                 document.getElementById('manualKeterangan').value = '';
                 document.getElementById('manualStatus').value = 'hadir';
             } catch(e) { 
+                console.error(e);
                 showToast('❌ Gagal menyimpan','error'); 
             }
         }
@@ -1901,6 +2148,7 @@
                 });
                 lucide.createIcons();
             } catch(e) { 
+                console.error(e);
                 showToast('❌ Gagal memuat riwayat','error'); 
             }
         }
@@ -1963,8 +2211,8 @@
                         }
                     }
                 });
-                
             } catch(e) { 
+                console.error(e);
                 showToast('❌ Gagal memuat rekap','error'); 
             }
         }
@@ -2009,6 +2257,7 @@
                 });
                 lucide.createIcons();
             } catch(e) { 
+                console.error(e);
                 showToast('❌ Gagal memuat pengajuan','error'); 
             }
         }
@@ -2050,6 +2299,7 @@
                 loadPengajuan();
                 loadRekap();
             } catch(e) { 
+                console.error(e);
                 showToast('❌ Gagal approve','error'); 
             }
         }
@@ -2060,6 +2310,7 @@
                 showToast('❌ Izin ditolak','info');
                 loadPengajuan();
             } catch(e) { 
+                console.error(e);
                 showToast('❌ Gagal tolak','error'); 
             }
         }
@@ -2104,6 +2355,7 @@
                     </div>`;
                 lucide.createIcons();
             } catch(e) { 
+                console.error(e);
                 showToast('❌ Gagal memuat profil','error'); 
             }
         }
@@ -2133,6 +2385,7 @@
                 });
                 lucide.createIcons();
             } catch(e) { 
+                console.error(e);
                 showToast('❌ Gagal memuat riwayat','error'); 
             }
         }
@@ -2173,6 +2426,7 @@
                 document.getElementById('izinTanggal').value = new Date().toISOString().split('T')[0];
                 document.getElementById('izinAlasan').value = '';
             } catch(e) { 
+                console.error(e);
                 showToast('❌ Gagal kirim pengajuan','error'); 
             }
         }
@@ -2205,7 +2459,6 @@
                 }
                 const memberData = doc.data();
                 
-                // Cek password lama (bisa default 123456)
                 if (memberData.password !== oldPass && !(oldPass === '123456' && (!memberData.password || memberData.password === '123456'))) {
                     showToast('❌ Password lama salah!','error');
                     return;
@@ -2303,6 +2556,7 @@
                 container.innerHTML = html;
                 lucide.createIcons();
             } catch(e) {
+                console.error(e);
                 showToast('❌ Gagal memuat preview','error');
             }
         }
@@ -2338,6 +2592,7 @@
                 XLSX.writeFile(wb, `Rekap-Absensi-${Date.now()}.xlsx`);
                 showToast('✅ Excel diunduh!','success');
             }).catch(e => {
+                console.error(e);
                 showToast('❌ Gagal export Excel','error');
             });
         }
@@ -2377,8 +2632,105 @@
                 doc.save(`Rekap-Absensi-${Date.now()}.pdf`);
                 showToast('✅ PDF diunduh!','success');
             }).catch(e => {
+                console.error(e);
                 showToast('❌ Gagal export PDF','error');
             });
+        }
+
+        // ==================== KAS / KEUANGAN ====================
+        function showAddKasModal() {
+            document.getElementById('kasJenis').value = 'masuk';
+            document.getElementById('kasJumlah').value = '';
+            document.getElementById('kasKeterangan').value = '';
+            document.getElementById('kasModal').classList.add('active');
+            lucide.createIcons();
+        }
+
+        async function saveKas() {
+            const jenis = document.getElementById('kasJenis').value;
+            const jumlah = parseFloat(document.getElementById('kasJumlah').value);
+            const keterangan = document.getElementById('kasKeterangan').value.trim();
+            
+            if (!jumlah || jumlah <= 0) {
+                showToast('❌ Jumlah harus diisi dengan angka positif!', 'error');
+                return;
+            }
+            
+            try {
+                await db.collection('kas').add({
+                    jenis,
+                    jumlah,
+                    keterangan,
+                    tanggal: new Date().toISOString().split('T')[0],
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdBy: currentUser ? currentUser.nama : 'Unknown'
+                });
+                closeModal('kasModal');
+                showToast('✅ Transaksi berhasil disimpan!', 'success');
+                loadKas();
+            } catch(e) {
+                console.error(e);
+                showToast('❌ Gagal menyimpan transaksi', 'error');
+            }
+        }
+
+        async function loadKas() {
+            try {
+                const snap = await db.collection('kas').orderBy('createdAt','desc').get();
+                const tbody = document.getElementById('kasTableBody');
+                if (snap.empty) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-12 text-gray-500">Belum ada transaksi</td></tr>';
+                    document.getElementById('kasSaldo').textContent = 'Rp 0';
+                    document.getElementById('kasPemasukan').textContent = 'Rp 0';
+                    document.getElementById('kasPengeluaran').textContent = 'Rp 0';
+                    return;
+                }
+                
+                let saldo = 0, pemasukan = 0, pengeluaran = 0;
+                tbody.innerHTML = '';
+                snap.forEach(doc => {
+                    const k = doc.data();
+                    if (k.jenis === 'masuk') {
+                        pemasukan += k.jumlah;
+                        saldo += k.jumlah;
+                    } else {
+                        pengeluaran += k.jumlah;
+                        saldo -= k.jumlah;
+                    }
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${k.tanggal}</td>
+                            <td><span class="badge ${k.jenis === 'masuk' ? 'badge-success' : 'badge-danger'}">${k.jenis.toUpperCase()}</span></td>
+                            <td>Rp ${k.jumlah.toLocaleString('id-ID')}</td>
+                            <td>${k.keterangan || '-'}</td>
+                            <td class="no-print">
+                                <button onclick="deleteKas('${doc.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-600" title="Hapus">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </td>
+                        </tr>`;
+                });
+                
+                document.getElementById('kasSaldo').textContent = 'Rp ' + saldo.toLocaleString('id-ID');
+                document.getElementById('kasPemasukan').textContent = 'Rp ' + pemasukan.toLocaleString('id-ID');
+                document.getElementById('kasPengeluaran').textContent = 'Rp ' + pengeluaran.toLocaleString('id-ID');
+                lucide.createIcons();
+            } catch(e) {
+                console.error(e);
+                showToast('❌ Gagal memuat data kas', 'error');
+            }
+        }
+
+        async function deleteKas(id) {
+            if (!confirm('Hapus transaksi ini?')) return;
+            try {
+                await db.collection('kas').doc(id).delete();
+                showToast('✅ Transaksi dihapus', 'success');
+                loadKas();
+            } catch(e) {
+                console.error(e);
+                showToast('❌ Gagal menghapus transaksi', 'error');
+            }
         }
 
         // ==================== UTILS ====================
@@ -2418,7 +2770,7 @@
             }
         });
 
-        console.log('✅ Paskibra Digital System Ready!');
+        console.log('✅ Paskibra Digital System Ready with Role-Based Access & Kas!');
     </script>
 </body>
 </html>
